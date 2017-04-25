@@ -16,5 +16,5 @@ using namespace rw::trajectory;
 class LuaGenerator
 {
     public:
-        void generate_lua(QPath &path, std::string filepath);
+        void generateLua(QPath &path, std::string filepath);
 };

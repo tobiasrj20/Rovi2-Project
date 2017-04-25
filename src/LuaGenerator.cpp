@@ -1,6 +1,6 @@
 #include "LuaGenerator.hpp"
 
-void LuaGenerator::generate_lua(QPath &path, std::string filepath)
+void LuaGenerator::generateLua(QPath &path, std::string filepath)
 {
     ofstream myfile;
     myfile.open(filepath);

@@ -6,6 +6,7 @@
 #include <rw/kinematics/Kinematics.hpp>
 #include <fstream>
 #include "LuaGenerator.hpp"
+#include "FindPath.hpp"
 
 using namespace std;
 using namespace rw::common;
@@ -47,7 +48,8 @@ int main(int argc, char** argv) {
     rw::math::Math::seed();
 
     //const string wcFile = "/home/age/LAGER/Dropbox/SDU/Gruppearbejde/RoVi2_final/Workcell3/WC3_Scene.wc.xml";
-    const string wcFile = "/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml";
+    //const string wcFile = "/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml";
+    const string wcFile = "../Workcell3/WC3_Scene.wc.xml";
     const string deviceName = "UR1";
     cout << "Trying to use workcell " << wcFile << " and device " << deviceName << endl;
 
@@ -139,7 +141,7 @@ int main(int argc, char** argv) {
 
     // Write path to LUA script
     LuaGenerator lua;
-    lua.generate_lua(path, "luascript.txt");
+    lua.generateLua(path, "luascript.txt");
 
     cout << "Program done." << endl;
     return 0;
