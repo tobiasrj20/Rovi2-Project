@@ -29,7 +29,7 @@ INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 
 # Add the source files to build
-SET(SrcFiles src/main.cpp)#src/pathplanning.cpp src/LuaGenerator.cpp src/findPathWithEpsilon.cpp src/Utilities)
+SET(SrcFiles src/main.cpp src/LuaGenerator.cpp) #src/pathplanning.cpp src/LuaGenerator.cpp src/findPathWithEpsilon.cpp src/Utilities)
 
 
 # The shared library to build:
