@@ -22,5 +22,20 @@ using namespace rwlibs::proximitystrategies;
 class FindPath
 {
     public:
-        void find_path();
+        FindPath(const string wcFile, const string deviceName);
+
+        QPath getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime);
+
+        void printPath();
+
+        bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
+
+    private:
+
+        WorkCell::Ptr wcell;
+        Device::Ptr device;
+        QPath path;
+        QToQPlanner::Ptr planner;
+        Timer t;
+
 };

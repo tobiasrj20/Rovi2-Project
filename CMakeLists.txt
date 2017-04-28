@@ -30,7 +30,7 @@ INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 
 # Add the source files to build
-SET(SrcFiles src/main.cpp src/LuaGenerator.cpp src/FindPath.hpp)
+SET(SrcFiles src/main.cpp src/LuaGenerator.cpp src/FindPath.cpp)
 
 
 # The shared library to build:
