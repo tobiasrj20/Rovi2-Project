@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
     // Write path to LUA script
     LuaGenerator lua;
     lua.generateLua(path, "luascript.txt");
-
+    
     cout << "Program done." << endl;
     return 0;
 }
