@@ -8,6 +8,7 @@ FindPath::FindPath(const string wcFile, const string deviceName)
         cerr << "Device: " << deviceName << " not found!" << endl;
     }
     rw::math::Math::seed();
+
 }
 
 QPath FindPath::getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime){

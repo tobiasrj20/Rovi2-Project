@@ -13,6 +13,7 @@ using namespace rw::loaders;
 using namespace rw::models;
 using namespace rw::trajectory;
 
+
 class LuaGenerator
 {
     public:

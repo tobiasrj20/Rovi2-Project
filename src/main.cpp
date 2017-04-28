@@ -22,6 +22,7 @@ using namespace rwlibs::proximitystrategies;
 
 int main(int argc, char** argv) {
 
+
     const string wcFile = "../Workcell3/WC3_Scene.wc.xml";
     const string deviceName = "UR1";
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv) {
     // Write path to LUA script
     LuaGenerator lua;
     lua.generateLua(path, "luascript.txt");
-    
+
     cout << "Program done." << endl;
     return 0;
 }

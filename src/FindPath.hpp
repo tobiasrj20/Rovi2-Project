@@ -28,6 +28,7 @@ class FindPath
 
         void printPath();
 
+
         bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
 
     private:

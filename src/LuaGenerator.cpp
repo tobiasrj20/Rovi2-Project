@@ -19,4 +19,5 @@ void LuaGenerator::generateLua(QPath &path, std::string filepath)
         myfile << "setQ({"<< (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "})\n";
     }
     myfile.close();
+
 }
