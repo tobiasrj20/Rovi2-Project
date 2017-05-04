@@ -1,0 +1,13 @@
+wc = rws.getRobWorkStudio():getWorkCell()
+state = wc:getDefaultState()
+device = wc:findDevice("UR1")
+obstacle = wc:findFrame("Obstacle")
+
+v = rw.Vector3D({-1.240, 0, 1.717})
+r = rw.Rotation3D({1, 0, 0, 0, 1, 0, 0, 0, 1})
+t = rw.Transform3D(v, r)
+print("v is", v)
+
+
+obstacle.moveTo(t,state)
+rws.getRobWorkStudio():setState(state)

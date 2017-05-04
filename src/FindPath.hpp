@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <vector>
+#include <fstream>
 #include <rw/rw.hpp>
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
@@ -25,11 +27,10 @@ class FindPath
         FindPath(const string wcFile, const string deviceName);
 
         QPath getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime);
-
         void printPath();
-
-
         bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
+        vector<Transform3D<double>> readMotionFile(std::string fileName);
+        void moveObstacle();
 
     private:
 
@@ -37,6 +38,10 @@ class FindPath
         Device::Ptr device;
         QPath path;
         QToQPlanner::Ptr planner;
+        MovableFrame* obstacle;
+        State state;
         Timer t;
+        std::vector<Transform3D<double>> obstacleMotions;
+        unsigned int motionCounter;
 
 };
