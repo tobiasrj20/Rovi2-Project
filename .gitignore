@@ -1,2 +1,4 @@
 build/
 Project_releated/
+/RobworkStudio_plugin/build/
+/RobworkStudio_plugin/src/socket
