@@ -40,14 +40,16 @@ ENDIF()
 MESSAGE("-- Build type: " ${CMAKE_BUILD_TYPE})
 
 #Include default settings for constructing a robwork dependent project
-SET(RobWork_DIR ${RW_ROOT}/cmake)
+#SET(RobWork_DIR ${RW_ROOT}/cmake)
+SET(RobWork_DIR ~/RobWork/RobWork/cmake)
 FIND_PACKAGE(RobWork REQUIRED)
 INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 MESSAGE("-- RobWork found: " ${RW_ROOT})
 
 #Include default settings for constructing a robworkstudio dependent project
-SET(RobWorkStudio_DIR ${RWSTUDIO_ROOT}/cmake)
+#SET(RobWorkStudio_DIR ${RWSTUDIO_ROOT}/cmake)
+SET(RobWorkStudio_DIR ~/RobWork/RobWorkStudio/cmake)
 FIND_PACKAGE(RobWorkStudio REQUIRED)
 INCLUDE_DIRECTORIES( ${ROBWORKSTUDIO_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} )
