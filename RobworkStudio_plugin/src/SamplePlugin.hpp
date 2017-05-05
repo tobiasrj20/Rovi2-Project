@@ -24,6 +24,13 @@ class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
         virtual void close();
 
         virtual void initialize();
+        void socket_server();
+        void error();
+        void moveRobot();
+        void moveObstacle();
+
+    private:
+        //rw::models::WorkCell::Ptr _wc;  // Workcell pointer
 
     private slots:
         void btnPressed();
