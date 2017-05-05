@@ -7,6 +7,31 @@
 
 #include "ui_SamplePlugin.h"
 
+#include <rws/RobWorkStudio.hpp>
+#include <rw/loaders/ImageLoader.hpp>
+#include <rw/loaders/WorkCellFactory.hpp>
+#include <rw/kinematics/State.hpp>
+#include <rwlibs/opengl/RenderImage.hpp>
+#include <rwlibs/simulation/GLFrameGrabber.hpp>
+#include <rw/math/Q.hpp>
+#include <rw/math/RPY.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
+
+#include <QTimer>
+
+#include "SocketCommunication.hpp"
+
+using namespace rw::common;
+using namespace rw::graphics;
+using namespace rw::kinematics;
+using namespace rw::loaders;
+using namespace rw::models;
+using namespace rw::sensor;
+using namespace rwlibs::opengl;
+using namespace rwlibs::simulation;
+using namespace rw::math;
+using namespace rws;
+
 class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
 {
     Q_OBJECT
@@ -24,17 +49,20 @@ class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
         virtual void close();
 
         virtual void initialize();
-        void socket_server();
-        void error();
-        void moveRobot();
-        void moveObstacle();
+        void moveRobot(Q q);
+        void moveObstacle(double x, double y, double z);
 
     private:
-        //rw::models::WorkCell::Ptr _wc;  // Workcell pointer
+        rw::models::WorkCell::Ptr _wc;  // Workcell
+        rw::kinematics::State _state;   // Workcell state
+        rw::models::Device::Ptr _device; // Robot device
+        QTimer* _timer; // FPS timer
+        SocketCommunication Socket;     // Communication between ROS and RobworkStudio
+
 
     private slots:
-        void btnPressed();
-
+        void btnPressed();  // Connect/disconnect to socket and start/stop timer
+        void timer();   // Fetch data from socket and move robot and obstacle
         void stateChangedListener(const rw::kinematics::State& state);
 };
 
