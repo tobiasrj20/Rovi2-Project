@@ -2,7 +2,7 @@
 #include <RobWorkStudio.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-#include "SocketCommunication.hpp"
+#include "../../libs/SocketCommunication/SocketCommunication.hpp"
 #include <vector>
 
 using namespace std;
@@ -121,4 +121,3 @@ void SamplePlugin::moveObstacle(double x, double y, double z)
 #include <QtCore/qplugin.h>
 Q_EXPORT_PLUGIN(SamplePlugin);
 #endif
-
