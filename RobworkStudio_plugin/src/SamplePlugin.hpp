@@ -19,7 +19,7 @@
 
 #include <QTimer>
 
-#include "SocketCommunication.hpp"
+#include "../../libs/SocketCommunication/SocketCommunication.hpp"
 
 using namespace rw::common;
 using namespace rw::graphics;

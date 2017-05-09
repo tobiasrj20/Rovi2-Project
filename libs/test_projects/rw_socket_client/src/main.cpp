@@ -1,6 +1,6 @@
 #include <boost/bind.hpp>
 #include <iostream>
-#include "SocketCommunication.hpp"
+#include "../../../SocketCommunication/SocketCommunication.hpp"
 #include <QTime>
 #include <QCoreApplication>
 #include <unistd.h>
