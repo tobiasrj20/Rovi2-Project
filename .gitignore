@@ -1,6 +1,3 @@
 build/
-Project_releated/
-/RobworkStudio_plugin/build/
-/RobworkStudio_plugin/src/socket
-
+Additional/
 CMakeLists.txt.user
