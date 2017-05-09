@@ -14,6 +14,8 @@
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
+set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+
 # The name of the project.
 PROJECT(PluginUIApp)
 
@@ -88,7 +90,7 @@ ELSE()
 ENDIF()
 
 # Add the source files to build
-SET(SrcFiles src/SamplePlugin.cpp src/SocketCommunication.cpp ${UIS_OUT_H})
+SET(SrcFiles src/SamplePlugin.cpp ../libs/SocketCommunication/SocketCommunication.cpp ${UIS_OUT_H})
 
 # The shared library to build:
 ADD_LIBRARY(SamplePlugin MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})

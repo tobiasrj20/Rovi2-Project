@@ -32,6 +32,7 @@ using namespace rwlibs::simulation;
 using namespace rw::math;
 using namespace rws;
 
+
 class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
 {
     Q_OBJECT
@@ -49,19 +50,26 @@ class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
         virtual void close();
 
         virtual void initialize();
+        void error();
         void moveRobot(Q q);
         void moveObstacle(double x, double y, double z);
 
+    private slots:
+
+
     private:
+        std::vector<float> state_vec;
+
         rw::models::WorkCell::Ptr _wc;  // Workcell
         rw::kinematics::State _state;   // Workcell state
         rw::models::Device::Ptr _device; // Robot device
         QTimer* _timer; // FPS timer
         SocketCommunication Socket;     // Communication between ROS and RobworkStudio
+        SocketCommunication mySocket;   // Communication between sockets
 
 
     private slots:
-        void btnPressed();  // Connect/disconnect to socket and start/stop timer
+        void btnPressed();
         void timer();   // Fetch data from socket and move robot and obstacle
         void stateChangedListener(const rw::kinematics::State& state);
 };
