@@ -1,8 +1,8 @@
-prefix=/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/catkin_ws/devel
+prefix=/home/age/LAGER/Dropbox/SDU/8_semester/RoVi2/workspace/Rovi2-Project/catkin_ws/devel
 
 Name: obstacle_avoidance
 Description: Description of obstacle_avoidance
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/catkin_ws/devel/lib 
+Libs: -L/home/age/LAGER/Dropbox/SDU/8_semester/RoVi2/workspace/Rovi2-Project/catkin_ws/devel/lib 
 Requires: 
