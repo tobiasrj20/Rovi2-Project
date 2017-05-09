@@ -1,7 +1,8 @@
 #include <iostream>
 #include "ros/ros.h"
 #include "SocketCommunication.hpp"
-#include <string>
+#include "std_msgs/Float64MultiArray.h"
+#include <vector>
 
 // Robwork
 #include <rw/rw.hpp>
@@ -22,34 +23,35 @@ using namespace rw::trajectory;
 using namespace rwlibs::pathplanners;
 using namespace rwlibs::proximitystrategies;
 
+// Global variables
+SocketCommunication mySocket;
+
+void qReceivedCallback(const std_msgs::Float64MultiArray msg)   //::ConstPtr&
+{
+    string Qstring;
+
+    if(msg.data.size() == 9)
+    {
+        for(unsigned int i = 0; i<msg.data.size(); i++)
+        {
+            Qstring.append(std::to_string(msg.data[i]));
+            Qstring.append(",");
+        }
+
+        mySocket.sendM(Qstring);
+    }
+    else
+        cout << "Wrong message size received!" << endl;
+}
 
 int main(int argc, char **argv)
 {
-    //ros::init(argc, argv, "robstudio_mover"); // Init ROS
-    //ros::NodeHandle nh; // Node handler
+    ros::init(argc, argv, "robstudio_mover_server"); // Init ROS
+    ros::NodeHandle nh; // Node handler
+    ros::Subscriber sub = nh.subscribe("q_value_sender", 1, qReceivedCallback);   // Subscribe on the q_value_sender
 
-    /*
-    *   Fra anden fil
-    */
-    string Qstring;
-    SocketCommunication mySocket;
-    Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
+    mySocket.createClient(50000);   // Create socket tunnel to RobworkStudio plugin
 
-    Qstring.clear();
-    for (int i = 0; i < 6 ; i++){
-        Qstring.append(std::to_string(from[i]));
-        Qstring.append(",");
-    }
-
-        Qstring.append("0");
-        Qstring.append(",");
-        Qstring.append("-0.175");
-        Qstring.append(",");
-        Qstring.append("1.");
-        Qstring.append(",");
-
-    cout << Qstring << endl;
-
-    mySocket.createClient(50000);
-    mySocket.sendM(Qstring);
+    ros::spin();
+    return 0;
 }

@@ -2,7 +2,7 @@
 #include <RobWorkStudio.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-#include "../../libs/SocketCommunication/SocketCommunication.hpp"
+
 #include <vector>
 
 using namespace std;

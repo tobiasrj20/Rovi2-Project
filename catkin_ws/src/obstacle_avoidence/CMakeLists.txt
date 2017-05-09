@@ -146,6 +146,7 @@ add_dependencies(${PROJECT_NAME}_planner_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_planner_node
     ${catkin_LIBRARIES}
     ${OpenCV_LIBS}
+    ${ROBWORK_LIBRARIES}
 )
 
 add_executable(${PROJECT_NAME}_move_robstudio_node  src/move_robstudio_node.cpp src/SocketCommunication.cpp)
