@@ -14,7 +14,19 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+# Set the RobWork root (edit in .bashrc if necessary)
 
+SET(RW_ROOT $ENV{RW_ROOT})
+
+# Verbose mode prints more info when doing make
+set(CMAKE_VERBOSE_MAKEFILE false)
+
+# Use RobWork
+#SET(RobWork_DIR ${RW_ROOT}/cmake)
+SET(RobWork_DIR ~/RobWork/RobWork/cmake)
+FIND_PACKAGE(RobWork REQUIRED)
+INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
+LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -134,6 +146,14 @@ add_dependencies(${PROJECT_NAME}_planner_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_planner_node
     ${catkin_LIBRARIES}
     ${OpenCV_LIBS}
+)
+
+add_executable(${PROJECT_NAME}_move_robstudio_node  src/move_robstudio_node.cpp src/SocketCommunication.cpp)
+add_dependencies(${PROJECT_NAME}_move_robstudio_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_move_robstudio_node
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBS}
+    ${ROBWORK_LIBRARIES}
 )
 
 
