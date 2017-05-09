@@ -30,7 +30,7 @@ INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 
 # Add the source files to build
-SET(SrcFiles src/main.cpp ../../SocketCommunication/SocketCommunication.cpp src/LuaGenerator.cpp src/FindPath.cpp)
+SET(SrcFiles src/main.cpp src/SocketCommunication.cpp src/LuaGenerator.cpp src/FindPath.cpp)
 
 find_package(Qt5Core)
 

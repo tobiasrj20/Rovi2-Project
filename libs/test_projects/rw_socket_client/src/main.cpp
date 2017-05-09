@@ -28,7 +28,7 @@ using namespace rwlibs::proximitystrategies;
 int main(int argc, char** argv) {
 
 
-    const string wcFile = "../../Workcell3/WC3_Scene.wc.xml";
+    const string wcFile = "../../../../Workcell3/WC3_Scene.wc.xml";
     const string deviceName = "UR1";
 
     Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
@@ -36,12 +36,12 @@ int main(int argc, char** argv) {
 
     FindPath Mypath(wcFile, deviceName);
     Mypath. moveObstacle(0, -0.175, 1);
-    QPath path = Mypath.getPath(to,from,0.2,10.);
-    //Mypath.printPath();
+    QPath path = Mypath.getPath(to,from,0.8,10.);
+    Mypath.printPath();
 
     // Write path to LUA script
-    LuaGenerator lua;
-    lua.generateLua(path, "luascript.txt");
+    //LuaGenerator lua;
+    //lua.generateLua(path, "luascript.txt");
 
     vector<string> string_state_vec;
     string Qstring;
@@ -65,11 +65,13 @@ int main(int argc, char** argv) {
 
 
 
+
         string_state_vec.push_back(Qstring);
     }
 
-    for (int i = 0; i < string_state_vec.size() ; i++){
-        mySocket.create_client(112);
+
+    for (uint i = 0; i < string_state_vec.size() ; i++){
+        mySocket.createClient(50000);
         mySocket.sendM(string_state_vec[i]);
         usleep(20000);
     }

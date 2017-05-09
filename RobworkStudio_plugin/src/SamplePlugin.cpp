@@ -82,7 +82,7 @@ void SamplePlugin::btnPressed() {
         _label0->setText("Status: Connected to ROS.");
         _btn0->setText("Disconnect");
         _timer->start(10); // Run FPS 200 Hz
-        mySocket.RunMyThread();
+        mySocket.runServerThread();
     }
     else {
         _btn0->setText("Connect");
