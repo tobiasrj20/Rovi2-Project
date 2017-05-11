@@ -21,10 +21,10 @@ using namespace rwlibs::pathplanners;
 using namespace rwlibs::proximitystrategies;
 
 
-class FindPath
+class PathPlanner_ALTO
 {
     public:
-        FindPath(const string wcFile, const string deviceName);
+        PathPlanner_ALTO(const string wcFile, const string deviceName);
 
         QPath getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime);
         void printPath();
@@ -32,6 +32,8 @@ class FindPath
         vector<Transform3D<double>> readMotionFile(std::string fileName);
         void moveObstacle();
         void moveObstacle(double x, double y, double z);
+        void writePathToFile(QPath &path, std::string filepath);
+        void readPathToFile(QPath &path, std::string filepath);
 
     private:
 

@@ -8,8 +8,6 @@ void SocketCommunication::serverThread(){
     int socket_fd, connection_fd;
     struct sockaddr_in server_address, client_address;
     socklen_t client_address_length = sizeof(client_address);
-    int status;
-
     // Create socket
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0)
@@ -25,9 +23,6 @@ void SocketCommunication::serverThread(){
     if (bind(socket_fd, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
         error("ERROR on binding");
 
-
-    while(1){
-
         // Begin listening for connections
         listen(socket_fd,1);
 
@@ -35,20 +30,40 @@ void SocketCommunication::serverThread(){
         if (connection_fd < 0)
             error("ERROR on accept of connection");
 
+        while(1) {
 
-        // Read received packet
-        bzero(buffer,256);
-        status = read(connection_fd,buffer,255);
-                cout << "status" << status << endl;
-        if (status < 0) error("ERROR reading from socket");
+            // Receive 100-byte packet
+            int receivedBytes;
+            for(receivedBytes = 0; receivedBytes < 100; ) {
 
-        pthread_mutex_lock( &mtx );
-            strcpy(out_buffer,buffer);
-            data_ready = true;
-        pthread_mutex_unlock( &mtx );
-    }
+                int status = recv(connection_fd,
+                                   buffer+receivedBytes,
+                                   sizeof(buffer)-receivedBytes, 0);
 
-    // Close socket connection
+                if ( status > 0 ) {
+                    receivedBytes += status;
+                    //printf("Bytes received: %d\n", status);
+                }
+                else {
+                    //printf("Connection failed with : %d\n", iResult);
+                    //break;
+                }
+            }
+            if(receivedBytes >= 100) {
+                //for(int i = 0 ; i < 100 ; i++ ){
+                 //     cout << buffer[i] ;
+               // }
+
+                pthread_mutex_lock( &mtx );
+                    strcpy(out_buffer,buffer);
+                    data_ready = true;
+                pthread_mutex_unlock( &mtx );
+
+            } else {
+                //break;
+            }
+        }
+
     close(connection_fd);
     close(socket_fd);
 }
@@ -59,14 +74,12 @@ void SocketCommunication::runServerThread(){
 
 bool SocketCommunication::createClient(int port)
 {
-
-    int status;
        struct sockaddr_in server_address;
        struct hostent *server;
 
        // Parse input
        server = gethostbyname("127.0.0.1");
-       //port = 50000;
+       //port = 112;
 
        if (server == NULL) {
            fprintf(stderr,"ERROR, no such host\n");
@@ -94,14 +107,8 @@ bool SocketCommunication::createClient(int port)
 int SocketCommunication::sendM(string message){
     int status;
     //FILE* tmpf = tmpfile();
-    bzero(buffer,256);
+    bzero(buffer,100);
     strncpy(buffer, message.c_str(), sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = 0;
-
-    //write(socket_fd, buffer, 59);
-
-
-
     // Send the message
     status = write(socket_fd,buffer,strlen(buffer));
     if (status < 0)
@@ -122,7 +129,6 @@ bool SocketCommunication::dataReady(){
         }
     pthread_mutex_unlock( &mtx );
     return return_bool;
-
 }
 
 void SocketCommunication::receive(string& bffr) {

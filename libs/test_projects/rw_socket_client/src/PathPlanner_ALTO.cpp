@@ -1,7 +1,7 @@
-#include "FindPath.hpp"
+#include "PathPlanner_ALTO.hpp"
 #define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
 
-FindPath::FindPath(const string wcFile, const string deviceName)
+PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
 {
     wcell = WorkCellLoader::Factory::load(wcFile);
     device = wcell->findDevice(deviceName);
@@ -24,7 +24,7 @@ FindPath::FindPath(const string wcFile, const string deviceName)
 }
 
 
-void FindPath::moveObstacle(double x, double y, double z) {
+void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     double roll = 0.000;
     double pitch = 0.000;
     double yaw = 0.000;
@@ -41,11 +41,13 @@ void FindPath::moveObstacle(double x, double y, double z) {
 
 
 
-QPath FindPath::getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime){
+QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime){
 
-    // Get default state of the scene and move to from
-    State state = wcell->getDefaultState();
+    // Get default state of the scene and move to the ''from'' position
+
     device->setQ(from,state);
+
+    //moveObstacle(0, -0.175, 0.95);
 
     CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
     PlannerConstraint constraint = PlannerConstraint::make(&detector,device,state);
@@ -57,9 +59,9 @@ QPath FindPath::getPath(rw::math::Q to, rw::math::Q from, double extend, int max
     Timer t;
 
     if (!checkCollisions(device, state, detector, from))
-        return 0;
+        cout << "HEY! - from er i kollision" << endl;
     if (!checkCollisions(device, state, detector, to))
-        return 0;
+        cout << "HEY! - to er i kollision" << endl;
 
     // Single path generation
     path.clear();
@@ -75,13 +77,13 @@ QPath FindPath::getPath(rw::math::Q to, rw::math::Q from, double extend, int max
     return path;
 }
 
-void FindPath::printPath(){
+void PathPlanner_ALTO::printPath(){
     for (QPath::iterator it = path.begin(); it < path.end(); it++) {
         cout << *it << endl;
     }
 }
 
-bool FindPath::checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q) {
+bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q) {
     State testState;
     CollisionDetector::QueryResult data;
     bool colFrom;
@@ -104,7 +106,7 @@ bool FindPath::checkCollisions(Device::Ptr device, const State &state, const Col
 /*
 *   Moves the obstacle
 */
-void FindPath::moveObstacle()
+void PathPlanner_ALTO::moveObstacle()
 {
     if(motionCounter >= obstacleMotions.size()) // size() -1 ???
         motionCounter = 0;
@@ -121,7 +123,7 @@ void FindPath::moveObstacle()
 *   and converts each line/move to a transformation matrix
 *   Returns a vector of all the transformation matrixes
 */
-vector<Transform3D<double>> FindPath::readMotionFile(std::string fileName)
+vector<Transform3D<double>> PathPlanner_ALTO::readMotionFile(std::string fileName)
 {
     std::string line;
     double x, y, z, roll, pitch, yaw;
@@ -157,4 +159,26 @@ vector<Transform3D<double>> FindPath::readMotionFile(std::string fileName)
     }
 
     return motions;
+}
+
+void PathPlanner_ALTO::writePathToFile(QPath &path, std::string filepath)
+{
+    ofstream myfile;
+    myfile.open(filepath);
+    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
+        myfile << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "\n";
+    }
+    myfile.close();
+
+}
+
+void PathPlanner_ALTO::readPathToFile(QPath &path, std::string filepath)
+{
+    ofstream myfile;
+    myfile.open(filepath);
+    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
+        myfile << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "\n";
+    }
+    myfile.close();
+
 }

@@ -30,9 +30,9 @@ SamplePlugin::~SamplePlugin() {
 void SamplePlugin::initialize() {
     getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
-    //_wc = WorkCellLoader::Factory::load("/home/age/Desktop/SDU/8_semester/RoVi2/Final/workspace/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
+    _wc = WorkCellLoader::Factory::load("/home/age/Desktop/SDU/8_semester/RoVi2/Final/workspace/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
 
-    _wc = WorkCellLoader::Factory::load("/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
+    //_wc = WorkCellLoader::Factory::load("/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
     //_wc = WorkCellLoader::Factory::load("../../Workcell3/WC3_Scene.wc.xml");
     _state = _wc->getDefaultState();        // Get workcell state
     getRobWorkStudio()->setWorkCell(_wc);   // Set workcell in RobworkStudio
@@ -42,7 +42,7 @@ void SamplePlugin::initialize() {
 void SamplePlugin::timer() {
 
     if(mySocket.dataReady()){
-        std::cout << "Q accepted" << std::endl;
+        //std::cout << "Q accepted" << std::endl;
         string buf;
         state_vec.clear();
         mySocket.receive(buf);
@@ -54,9 +54,9 @@ void SamplePlugin::timer() {
             state_vec.push_back( std::stof (token,&sz));
         }
 
-        std::cout << "SetQ(6,";
+        std::cout << "SetQ(6";
         for (uint i = 0; i < 6; i++) {
-            std::cout << state_vec[i] << ",";
+            std::cout << "," << state_vec[i] ;
         }
         std::cout << ")" << std::endl;
 
@@ -66,8 +66,11 @@ void SamplePlugin::timer() {
         }
         std::cout << ")" << std::endl;
 
-        moveRobot(Q(6, state_vec[0],state_vec[1],state_vec[2],state_vec[3],state_vec[4],state_vec[5]));
-        moveObstacle(state_vec[6],state_vec[7],state_vec[8]);
+       //moveRobot(Q(6, state_vec[0],state_vec[1],state_vec[2],state_vec[3],state_vec[4],state_vec[5]));
+       //moveObstacle(state_vec[6],state_vec[7],state_vec[8]);
+
+        moveAll(Q(6, state_vec[0],state_vec[1],state_vec[2],state_vec[3],state_vec[4],state_vec[5]),state_vec[6],state_vec[7],state_vec[8]);
+
     }
 }
 
@@ -93,6 +96,25 @@ void SamplePlugin::btnPressed() {
 
 void SamplePlugin::stateChangedListener(const State& state) {
 }
+
+
+void SamplePlugin::moveAll(Q q, double x, double y, double z){
+
+    double roll = 0.000;
+    double pitch = 0.000;
+    double yaw = 0.000;
+
+    RPY<double> rpy(roll,pitch,yaw);   // Create RPY matrix
+    Vector3D<double> xyz(x,y,z);   // Create translation vector
+    Transform3D<double> t_matrix(xyz, rpy.toRotation3D() ); // Create a transformation matrix from the RPY and XYZ
+
+    MovableFrame* obstacle = (MovableFrame*) _wc->findFrame("Obstacle");
+    obstacle->moveTo(t_matrix, _state);
+    _device = _wc->findDevice("UR1");
+    _device->setQ(q, _state);
+    getRobWorkStudio()->setState(_state);
+}
+
 
 void SamplePlugin::moveRobot(Q q)
 {

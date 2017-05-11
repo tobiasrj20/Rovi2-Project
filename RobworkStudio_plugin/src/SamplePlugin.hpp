@@ -53,6 +53,7 @@ class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
         void error();
         void moveRobot(Q q);
         void moveObstacle(double x, double y, double z);
+        void moveAll(Q q, double x, double y, double z);
 
     private slots:
 

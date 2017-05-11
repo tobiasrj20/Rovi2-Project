@@ -30,8 +30,8 @@ class SocketCommunication
         void runServerThread();
         bool dataReady();
 
-        char buffer[256];
-        char out_buffer[256];
+        char buffer[100];
+        char out_buffer[100];
         pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
         bool data_ready = false;
 
