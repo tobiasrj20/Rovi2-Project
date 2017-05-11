@@ -33,13 +33,18 @@ class PathPlanner_ALTO
         void moveObstacle();
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);
-        void readPathToFile(QPath &path, std::string filepath);
+        void readPathFromFile(QPath &path, std::string filepath);
+
+        void writeMainPathToFile(std::string filepath);
+        void readMainPathFromFile(std::string filepath);
 
     private:
 
         WorkCell::Ptr wcell;
         Device::Ptr device;
         QPath path;
+        QPath mainPath;
+        QPath workingPath;
         QToQPlanner::Ptr planner;
         MovableFrame* obstacle;
         State state;
