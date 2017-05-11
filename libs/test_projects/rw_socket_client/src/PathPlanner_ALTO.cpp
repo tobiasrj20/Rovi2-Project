@@ -62,9 +62,9 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
     QToQPlanner::Ptr planner;
     Timer t;
 
-    if (!checkCollisions(device, state, detector, from))
+    if (checkCollisions(device, state, detector, from))
         return 0;
-    if (!checkCollisions(device, state, detector, to))
+    if (checkCollisions(device, state, detector, to))
         return 0;
 
     // Single path generation
@@ -82,9 +82,12 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
 }
 
 void PathPlanner_ALTO::printPath(QPath path){
-    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
+    cout << "size: " << path.size() << endl;
+    for(uint i = 0; i<path.size(); i++)
+        cout << path[i] << endl;
+    /*for (QPath::iterator it = path.begin(); it < path.end(); it++) {
         cout << *it << endl;
-    }
+    }*/
 }
 
 bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q) {
@@ -102,25 +105,57 @@ bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, c
         for (FramePairSet::iterator it = fps.begin(); it != fps.end(); it++) {
             cerr << (*it).first->getName() << " " << (*it).second->getName() << endl;
         }
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 /*
 *   Generates a new path if the ball becomes a obstacle
 */
-void PathPlanner_ALTO::onlinePlanner(double x, double y, double z)
+QPath PathPlanner_ALTO::onlinePlanner(Q ballPosition)
 {
-    moveObstacle(x,y,z);
+    Q preCollision;
+    Q postCollision;
+    bool collision = false;
+    QPath newPath;
 
+    moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
     CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+    workingPath = mainPath;
 
-    for(unsigned int i = 0; i<mainPath.size(); i++)
+
+    for(unsigned int i = 0; i<workingPath.size(); i++)
     {
-        checkCollisions(device, state, detector, mainPath[i]);
-    }
+        bool col = checkCollisions(device, state, detector, workingPath[i]);
 
+        if(col)
+        {
+            if(!collision)
+            {
+                collision = true;
+                preCollision = workingPath[i - 1];
+            }
+        }
+        else if(!col && collision)
+        {
+            collision = false;
+            postCollision = workingPath[i];
+
+            QPath bypass = getPath(postCollision, preCollision, 0.9, 10);  // Vi skal have indstillet epislon og max time
+
+            for(uint k = 0; k < bypass.size(); k++)
+            {
+                newPath.push_back(bypass[k]);
+            }
+        }
+        else
+        {
+            newPath.push_back(workingPath[i]);
+        }
+    }
+    workingPath = newPath;
+    return workingPath;
 }
 
 /*
@@ -199,15 +234,42 @@ void PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
         }
         myfile.close();
     }
-    else cout << "fooey\n";
+    else
+        cout << "Could not read file! " << endl;
 
 
-
+    /*
     for (QPath::iterator it = mainPath.begin(); it < mainPath.end(); it++) {
         cout << *it << endl;
-    }
+    }*/
 }
 
+QPath PathPlanner_ALTO::readBallPathFromFile(std::string filepath)
+{
+    vector<double> state_vec;
+    std::string line, token;
+    std::string::size_type sz;
+    std::ifstream myfile;
+    QPath ballPath;
+
+    myfile.open(filepath);
+    if (myfile) {
+        while (getline( myfile, line )) {
+            state_vec.clear();
+            std::istringstream ss(line);
+            while(getline(ss, token, ',')) {
+                state_vec.push_back( std::stod(token,&sz));
+            }
+        ballPath.push_back(Q(3, state_vec[0],state_vec[1],state_vec[2]));
+
+        }
+        myfile.close();
+    }
+    else
+        cout << "Could not read file! " << endl;
+
+    return ballPath;
+}
 
 
 void PathPlanner_ALTO::writePathToFile(QPath &path, std::string filepath)

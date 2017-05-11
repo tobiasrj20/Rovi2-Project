@@ -30,21 +30,18 @@ class PathPlanner_ALTO
         void printPath(QPath path);
         bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
         vector<Transform3D<double>> readMotionFile(std::string fileName);
-        void onlinePlanner(double x, double y, double z);
+        QPath onlinePlanner(Q ballPosition);
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);
         void readPathFromFile(QPath &path, std::string filepath);
-
         void writeMainPathToFile(std::string filepath);
         void readMainPathFromFile(std::string filepath);
-
+        QPath readBallPathFromFile(std::string filepath);
         QPath getMainPath();
 
     private:
-
         WorkCell::Ptr wcell;
         Device::Ptr device;
-        //QPath path;
 
         QPath mainPath;
         QPath workingPath;
