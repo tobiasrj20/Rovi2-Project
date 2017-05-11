@@ -64,7 +64,7 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
         cout << "HEY! - to er i kollision" << endl;
 
     // Single path generation
-    path.clear();
+    QPath path;
     planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
     t.resetAndResume();
     planner->query(from,to,path,maxtime);
@@ -77,7 +77,7 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
     return path;
 }
 
-void PathPlanner_ALTO::printPath(){
+void PathPlanner_ALTO::printPath(QPath path){
     for (QPath::iterator it = path.begin(); it < path.end(); it++) {
         cout << *it << endl;
     }
@@ -104,19 +104,20 @@ bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, c
 }
 
 /*
-*   Moves the obstacle
+*   Generates a new path if the ball becomes a obstacle
 */
-void PathPlanner_ALTO::moveObstacle()
+void PathPlanner_ALTO::onlinePlanner(double x, double y, double z)
 {
-    if(motionCounter >= obstacleMotions.size()) // size() -1 ???
-        motionCounter = 0;
-    else
-        motionCounter++;
+    moveObstacle(x,y,z);
 
-    obstacle->moveTo(obstacleMotions[motionCounter], state);
-    //getRobWorkStudio()->setState(state);
+    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+
+    for(unsigned int i = 0; i<mainPath.size(); i++)
+    {
+        checkCollisions(device, state, detector, mainPath[i]);
+    }
+
 }
-
 
 /*
 *   Reads a file with marker movements with (x,y,z,r,p,y) on each line

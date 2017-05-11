@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     Mypath.moveObstacle(0, -0.175, 3.);
 
     QPath path = Mypath.getPath(to,from,0.9,10.);
-    Mypath.printPath();
+    Mypath.printPath(path);
 
     Mypath.writePathToFile(path, "Main_path.txt");
 

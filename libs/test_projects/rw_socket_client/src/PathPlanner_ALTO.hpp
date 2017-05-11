@@ -27,10 +27,10 @@ class PathPlanner_ALTO
         PathPlanner_ALTO(const string wcFile, const string deviceName);
 
         QPath getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime);
-        void printPath();
+        void printPath(QPath path);
         bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
         vector<Transform3D<double>> readMotionFile(std::string fileName);
-        void moveObstacle();
+        void onlinePlanner(double x, double y, double z);
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);
         void readPathToFile(QPath &path, std::string filepath);
@@ -39,7 +39,9 @@ class PathPlanner_ALTO
 
         WorkCell::Ptr wcell;
         Device::Ptr device;
-        QPath path;
+        //QPath path;
+        QPath mainPath;
+        QPath workingPath;
         QToQPlanner::Ptr planner;
         MovableFrame* obstacle;
         State state;
