@@ -162,6 +162,51 @@ vector<Transform3D<double>> PathPlanner_ALTO::readMotionFile(std::string fileNam
     return motions;
 }
 
+
+void PathPlanner_ALTO::writeMainPathToFile(std::string filepath)
+{
+    ofstream myfile;
+    myfile.open(filepath);
+    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
+        myfile << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "\n";
+    }
+    myfile.close();
+
+}
+
+void PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
+
+    vector<double> state_vec;
+    std::string line, token;
+    std::string::size_type sz;
+    std::ifstream myfile;
+
+    mainPath.clear();
+
+    myfile.open(filepath);
+    if (myfile) {
+        while (getline( myfile, line )) {
+            state_vec.clear();
+            std::istringstream ss(line);
+            while(getline(ss, token, ',')) {
+                state_vec.push_back( std::stod(token,&sz));
+            }
+        mainPath.push_back(Q(6, state_vec[0],state_vec[1],state_vec[2],state_vec[3],state_vec[4],state_vec[5]));
+        //cout << temp << endl;
+        }
+        myfile.close();
+    }
+    else cout << "fooey\n";
+
+
+
+    for (QPath::iterator it = mainPath.begin(); it < mainPath.end(); it++) {
+        cout << *it << endl;
+    }
+}
+
+
+
 void PathPlanner_ALTO::writePathToFile(QPath &path, std::string filepath)
 {
     ofstream myfile;

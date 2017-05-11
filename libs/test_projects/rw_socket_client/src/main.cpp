@@ -33,13 +33,18 @@ int main(int argc, char** argv) {
     Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
 
     PathPlanner_ALTO Mypath(wcFile, deviceName);
+/*
     Mypath.moveObstacle(0, -0.175, 3.);
 
     QPath path = Mypath.getPath(to,from,0.9,10.);
     Mypath.printPath(path);
 
-    Mypath.writePathToFile(path, "Main_path.txt");
+    Mypath.writePathToFile(path, "../src/main_path.txt");
+*/
+    Mypath.readMainPathFromFile("../src/main_path.txt");
 
+
+/*
     vector<string> string_state_vec;
     string Qstring;
 
@@ -81,7 +86,7 @@ int main(int argc, char** argv) {
 
 
 
-
+*/
     cout << "Program done." << endl;
     return 0;
 }
