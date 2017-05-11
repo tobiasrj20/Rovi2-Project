@@ -23,6 +23,10 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
     obstacleMotions = readMotionFile(OBSTACLE_MOTION_FILE_PATH);
 }
 
+QPath PathPlanner_ALTO::getMainPath(){
+   return mainPath;
+}
+
 
 void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     double roll = 0.000;
@@ -59,9 +63,9 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
     Timer t;
 
     if (!checkCollisions(device, state, detector, from))
-        cout << "HEY! - from er i kollision" << endl;
+        return 0;
     if (!checkCollisions(device, state, detector, to))
-        cout << "HEY! - to er i kollision" << endl;
+        return 0;
 
     // Single path generation
     QPath path;
@@ -158,7 +162,6 @@ vector<Transform3D<double>> PathPlanner_ALTO::readMotionFile(std::string fileNam
 
         file.close();
     }
-
     return motions;
 }
 
@@ -167,7 +170,7 @@ void PathPlanner_ALTO::writeMainPathToFile(std::string filepath)
 {
     ofstream myfile;
     myfile.open(filepath);
-    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
+    for (QPath::iterator it = mainPath.begin(); it < mainPath.end(); it++) {
         myfile << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "\n";
     }
     myfile.close();
@@ -218,7 +221,7 @@ void PathPlanner_ALTO::writePathToFile(QPath &path, std::string filepath)
 
 }
 
-void PathPlanner_ALTO::readPathToFile(QPath &path, std::string filepath)
+void PathPlanner_ALTO::readPathFromFile(QPath &path, std::string filepath)
 {
     ofstream myfile;
     myfile.open(filepath);

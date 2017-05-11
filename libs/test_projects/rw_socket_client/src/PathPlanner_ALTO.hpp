@@ -38,6 +38,8 @@ class PathPlanner_ALTO
         void writeMainPathToFile(std::string filepath);
         void readMainPathFromFile(std::string filepath);
 
+        QPath getMainPath();
+
     private:
 
         WorkCell::Ptr wcell;

@@ -43,8 +43,12 @@ int main(int argc, char** argv) {
 */
     Mypath.readMainPathFromFile("../src/main_path.txt");
 
+   // {-0.40,0.20,0.90}
 
+    Mypath.onlinePlanner(-0.40,0.20,0.90);
 /*
+    QPath path = Mypath.getMainPath();
+
     vector<string> string_state_vec;
     string Qstring;
 
@@ -76,17 +80,17 @@ int main(int argc, char** argv) {
 
 
 
-    for (uint j = 0; j < 100; j++){
-        for (uint i = 0; i < string_state_vec.size() ; i++){
+   // for (uint j = 0; j < 100; j++){
+        for (uint i = 0; i < string_state_vec.size()-5 ; i++){
             mySocket.sendM(string_state_vec[i]);
             usleep(100000);
         }
-        usleep(800000);
-    }
-
+     //   usleep(800000);
+   // }
 
 
 */
+
     cout << "Program done." << endl;
     return 0;
 }
