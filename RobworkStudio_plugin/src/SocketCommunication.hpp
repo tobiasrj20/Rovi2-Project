@@ -29,11 +29,13 @@ class SocketCommunication
         void serverThread();
         void runServerThread();
         bool dataReady();
+        void stopThreads();
 
         char buffer[256];
         char out_buffer[256];
         pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
         bool data_ready = false;
+        bool stop = false;
 
     private:
 

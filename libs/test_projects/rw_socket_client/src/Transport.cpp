@@ -13,11 +13,18 @@ void Transport::transportThread()
 {
     while(1)
     {
+        // workingPath.size() is not protected and may change while reading!!
         for(uint i = 0; i<workingPath.size(); i++)
         {
-            cout << "Jeg er en traad!" << endl; // Debug
+            //cout << "Jeg er en traad!" << endl; // Debug
             mtx.lock();
-                sendToSimulator(workingPath[i], ballPosition);
+                if(i >= limit){
+                    i = limit;
+                }
+                else{
+                    sendToSimulator(workingPath[i], ballPosition);
+                }
+                currentIndex = i;
             mtx.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(period));
 
@@ -29,6 +36,7 @@ void Transport::updatePath(QPath workingPath)
 {
     mtx.lock();
         this->workingPath = workingPath;
+        limit = -1;
     mtx.unlock();
 }
 
@@ -41,7 +49,16 @@ void Transport::updateBallPos(Q ballPosition)
 
 void Transport::setLimit(int limit)
 {
+    mtx.lock();
+        this->limit = limit;
+    mtx.unlock();
+}
 
+uint Transport::getCurrentIndex()
+{
+    //mtx.lock();
+        return currentIndex;
+    //mtx.unlock();
 }
 
 void Transport::sendToSimulator(Q q, Q ballPosition)
@@ -64,7 +81,7 @@ void Transport::sendToSimulator(Q q, Q ballPosition)
     while(Qstring.length() < 100){
         Qstring.append("0");
     }
-    cout << "Qstring: " << Qstring << endl;
+    // cout << "Qstring: " << Qstring << endl; // debug
     // Send robot and obstacle state
     mySocket.sendM(Qstring);
 }

@@ -6,6 +6,21 @@
 #include <rw/rw.hpp>
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
+
+#include <rwlibs/pathplanners/z3/Z3Planner.hpp>
+#include <rwlibs/pathplanners/z3/Z3QToQPlanner.hpp>
+
+#include <rwlibs/pathplanners/arw/ARWPlanner.hpp>
+#include <rwlibs/pathplanners/arw/ARWQToQPlanner.hpp>
+
+#include <rwlibs/pathplanners/sbl/SBLSetup.hpp>
+#include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
+#include <rwlibs/pathplanners/sbl/SBLOptions.hpp>
+
+#include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
+
+
+
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 using namespace std;
@@ -26,11 +41,16 @@ class PathPlanner_ALTO
     public:
         PathPlanner_ALTO(const string wcFile, const string deviceName);
 
-        QPath getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime);
+        QPath getPath(rw::math::Q from, rw::math::Q to, double extend, int maxtime);
         void printPath(QPath path);
         bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
         vector<Transform3D<double>> readMotionFile(std::string fileName);
+
+        int preChecker(Q ballPosition, int presentIndex);
+        QPath onlinePlanner2(uint limit, int minimumThreshold);
+
         QPath onlinePlanner(Q ballPosition);
+
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);
         void readPathFromFile(QPath &path, std::string filepath);

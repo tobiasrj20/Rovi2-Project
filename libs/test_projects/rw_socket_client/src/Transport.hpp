@@ -35,11 +35,14 @@ class Transport
         Q ballPosition;
         int period;
         void sendToSimulator(Q q, Q ballPosition);
+        int limit = -1;
+        uint currentIndex = 0;
 
     public:
         Transport(QPath workingPath, int period);
         void updatePath(QPath workingPath);
         void updateBallPos(Q ballPosition);
         void setLimit(int limit);
+        uint getCurrentIndex();
         void transportThread();
 };

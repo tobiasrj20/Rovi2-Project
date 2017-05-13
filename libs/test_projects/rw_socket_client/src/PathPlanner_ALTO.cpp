@@ -27,7 +27,6 @@ QPath PathPlanner_ALTO::getMainPath(){
    return mainPath;
 }
 
-
 void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     double roll = 0.000;
     double pitch = 0.000;
@@ -43,9 +42,7 @@ void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     //getRobWorkStudio()->setState(state);
 }
 
-
-
-QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend, int maxtime){
+QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend, int maxtime){
 
     // Get default state of the scene and move to the ''from'' position
 
@@ -69,7 +66,11 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q to, rw::math::Q from, double extend,
 
     // Single path generation
     QPath path;
+
     planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
+    //planner = Z3Planner::makeQToQPlanner(constraint,device);
+    //planner = ARWPlanner::makeQToQPlanner(constraint,device,0,-1,-1);
+
     t.resetAndResume();
     planner->query(from,to,path,maxtime);
     t.pause();
@@ -110,6 +111,72 @@ bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, c
     return false;
 }
 
+int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
+
+    //moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
+
+    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+    for(uint i = presentIndex; i<workingPath.size(); i++) {
+        if(checkCollisions(device, state, detector, workingPath[i])) {
+            return i-1;
+        }
+    }
+    return -1;
+}
+
+QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
+{
+
+    QPath newPath;
+    // push first collision free part of workingPath into tempPath
+    for(uint i = 0; i < limit; i++){
+        newPath.push_back(workingPath[i]);
+    }
+
+    // moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
+    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+
+    int i = limit + 1;
+    int cnt = 0;
+    bool col;
+
+    // check for colliding states with a threshold for intermediate clear states
+    do {
+        i++;
+        if(!(col = checkCollisions(device, state, detector, workingPath[i]))){
+            cnt++;
+        }
+        else {
+            cnt = 0;
+        }
+    }
+    while((col || cnt < minimumThreshold) && i < workingPath.size()-1);
+
+    // if end of vector
+    if(i > workingPath.size()-2){
+        i = workingPath.size()-1;
+    }
+    else{
+        i = i - (minimumThreshold - 1);
+    }
+
+    QPath bypass = getPath(workingPath[limit], workingPath[i], 0.9, 10);  // Vi skal have indstillet epislon og max time
+
+    for(uint k = 0; k < bypass.size(); k++){
+        newPath.push_back(bypass[k]);
+        cout << bypass[k] << "   ny" << endl;
+    }
+
+
+    // push remaining part of workingPath into tempPath
+    for(uint j = i+1; j < workingPath.size(); j++){
+        newPath.push_back(workingPath[j]);
+    }
+
+    workingPath = newPath;
+    return workingPath;
+}
+
 /*
 *   Generates a new path if the ball becomes a obstacle
 */
@@ -142,7 +209,7 @@ QPath PathPlanner_ALTO::onlinePlanner(Q ballPosition)
             collision = false;
             postCollision = workingPath[i];
 
-            QPath bypass = getPath(postCollision, preCollision, 0.9, 10);  // Vi skal have indstillet epislon og max time
+            QPath bypass = getPath(preCollision, postCollision, 0.9, 10);  // Vi skal have indstillet epislon og max time
 
             for(uint k = 0; k < bypass.size(); k++)
             {
@@ -237,6 +304,8 @@ void PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
     else
         cout << "Could not read file! " << endl;
 
+
+    workingPath = mainPath;
 
     /*
     for (QPath::iterator it = mainPath.begin(); it < mainPath.end(); it++) {

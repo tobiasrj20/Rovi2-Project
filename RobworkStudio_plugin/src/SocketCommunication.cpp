@@ -30,7 +30,7 @@ void SocketCommunication::serverThread(){
         if (connection_fd < 0)
             error("ERROR on accept of connection");
 
-        while(1) {
+        while(!stop) {
 
             // Receive 100-byte packet
             int receivedBytes;
@@ -69,7 +69,12 @@ void SocketCommunication::serverThread(){
 }
 
 void SocketCommunication::runServerThread(){
-   std::thread *first = new std::thread(&SocketCommunication::serverThread, this);
+    stop = false;
+    std::thread *first = new std::thread(&SocketCommunication::serverThread, this);
+}
+
+void SocketCommunication::stopThreads(){
+    stop = true;
 }
 
 bool SocketCommunication::createClient(int port)

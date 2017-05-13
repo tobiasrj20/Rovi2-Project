@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
     Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
     Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
     Q ballPosition(3,-0.40,0.20,0.90);
+
     PathPlanner_ALTO planner(wcFile, deviceName);
 
 
@@ -40,14 +41,55 @@ int main(int argc, char** argv) {
 
     planner.readMainPathFromFile("../src/main_path.txt");
     //planner.printPath(planner.getMainPath());
-    Transport transport(planner.getMainPath(), 100); // Create transport object for handling transmission of paths to the robot/simulator
+    Transport transport(planner.getMainPath(), 500); // Create transport object for handling transmission of paths to the robot/simulator
     //std::thread *t1 = new thread(&transport.transportThread);
 
-   // {-0.40,0.20,0.90}
-   while(1);
+    transport.updateBallPos(ballPosition);
+    //while(1);
+
+    QPath correctionPath;
+
+    int currentIndex = 0;
+
+    while((currentIndex = transport.getCurrentIndex()) < correctionPath.size()-1){
+    //for (uint i = 0; i < 2; i++){
+
+        // Test: Move the ball
+        if(currentIndex < 8)
+            planner.moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
+
+        //int currentIndex = transport.getCurrentIndex();
+        cout << "current index:  " << currentIndex << endl;
+
+
+
+        int limit = planner.preChecker(ballPosition, currentIndex);
+
+        cout << "limit:   " << limit << endl;
+
+        if(limit >= 0){
+           transport.setLimit(limit);
+
+           correctionPath = planner.onlinePlanner2(limit,1);
+
+           transport.updatePath(correctionPath);
+           transport.updateBallPos(ballPosition);
+
+           planner.printPath(correctionPath);
+        }
+
+    }
+
+
+
+
+
+
+
+
     //QPath path = planner.onlinePlanner(ballPosition);
     //planner.printPath(path);
-
+    while(1);
     cout << "Program done." << endl;
     return 0;
 }
