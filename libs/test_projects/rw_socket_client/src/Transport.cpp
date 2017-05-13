@@ -6,7 +6,23 @@ Transport::Transport(QPath workingPath, int period)
     this->workingPath = workingPath;
     this->period = period;
     ballPosition = Q(3,-2,0,0);  // Initialize ballPosition
+    lastBallPosition = ballPosition;
+    lastRobotConfig = workingPath[0];
     std::thread *t1 = new thread(&Transport::transportThread, this);
+}
+
+Transport::Transport(QPath workingPath, int period, QPath ballPath, int ballPeriod)
+{
+    mySocket.createClient(50000);
+    this->workingPath = workingPath;
+    this->period = period;
+    this->ballPeriod = ballPeriod;
+    this->ballPath = ballPath;
+    ballPosition = ballPath[0];  // Initialize ballPosition
+    lastBallPosition = ballPosition;
+    lastRobotConfig = workingPath[0];
+    std::thread *t1 = new thread(&Transport::transportThread, this);
+    std::thread *t2 = new thread(&Transport::ballMoveThread, this);
 }
 
 void Transport::transportThread()
@@ -22,12 +38,29 @@ void Transport::transportThread()
                     i = limit;
                 }
                 else{
-                    sendToSimulator(workingPath[i], ballPosition);
+                    //sendToSimulator(workingPath[i], ballPosition);
+                    sendToRobConfigToSimulator(workingPath[i]);
                 }
                 currentIndex = i;
             mtx.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(period));
 
+        }
+    }
+}
+
+
+void Transport::ballMoveThread()
+{
+    while(1)
+    {
+        for(uint i = 0; i<ballPath.size(); i++)
+        {
+            mtx.lock();
+                sendBallPosToSimulator(ballPath[i]);
+            mtx.unlock();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(ballPeriod));
         }
     }
 }
@@ -61,6 +94,8 @@ uint Transport::getCurrentIndex()
     //mtx.unlock();
 }
 
+
+// Send both robot q and ball position
 void Transport::sendToSimulator(Q q, Q ballPosition)
 {
     string Qstring;
@@ -84,4 +119,35 @@ void Transport::sendToSimulator(Q q, Q ballPosition)
     // cout << "Qstring: " << Qstring << endl; // debug
     // Send robot and obstacle state
     mySocket.sendM(Qstring);
+}
+
+
+// Send only ball position and then the last robot config
+void Transport::sendBallPosToSimulator(Q ballPosition)
+{
+    lastBallPosition = ballPosition;
+    sendToSimulator(lastRobotConfig, ballPosition);
+}
+
+// Send only robot config and then the last ball position
+void Transport::sendToRobConfigToSimulator(Q q)
+{
+    lastRobotConfig = q;
+    sendToSimulator(q, lastBallPosition);
+}
+
+void Transport::setBallPeriod(int period)
+{
+    ballPeriod = period;
+}
+
+Q Transport::getBallPosition()
+{
+    Q ballPosision;
+
+    mtx.lock();
+        ballPosition = lastBallPosition;
+    mtx.unlock();
+
+    return ballPosition;
 }

@@ -32,7 +32,8 @@ int main(int argc, char** argv) {
 
     Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
     Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
-    Q ballPosition(3,-0.40,0.20,0.90);
+    //Q ballPosition(3,-0.40,0.20,0.90);
+    Q ballPosition;
 
     PathPlanner_ALTO planner(wcFile, deviceName);
 
@@ -40,12 +41,12 @@ int main(int argc, char** argv) {
     //Mypath.writePathToFile(path, "../src/main_path.txt");
 
     planner.readMainPathFromFile("../src/main_path.txt");
-    //planner.printPath(planner.getMainPath());
-    Transport transport(planner.getMainPath(), 500); // Create transport object for handling transmission of paths to the robot/simulator
-    //std::thread *t1 = new thread(&transport.transportThread);
+    QPath ballPath = planner.readBallPathFromFile("../src/ball_path.txt");
 
-    transport.updateBallPos(ballPosition);
-    //while(1);
+    //Transport transport(planner.getMainPath(), 500); // Create transport object for handling transmission of paths to the robot/simulator
+    //transport.updateBallPos(ballPosition);
+
+    Transport transport(planner.getMainPath(), 500, ballPath, 500); // Create transport object for handling of robot and ball movement in the simulator
 
     QPath correctionPath;
 
@@ -54,9 +55,9 @@ int main(int argc, char** argv) {
     while((currentIndex = transport.getCurrentIndex()) < correctionPath.size()-1){
     //for (uint i = 0; i < 2; i++){
 
-        // Test: Move the ball
-        if(currentIndex < 8)
-            planner.moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
+        // Move the ball
+        ballPosition = transport.getBallPosition();
+        planner.moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
 
         //int currentIndex = transport.getCurrentIndex();
         cout << "current index:  " << currentIndex << endl;
@@ -73,22 +74,13 @@ int main(int argc, char** argv) {
            correctionPath = planner.onlinePlanner2(limit,1);
 
            transport.updatePath(correctionPath);
-           transport.updateBallPos(ballPosition);
+           //transport.updateBallPos(ballPosition);
 
            planner.printPath(correctionPath);
         }
 
     }
 
-
-
-
-
-
-
-
-    //QPath path = planner.onlinePlanner(ballPosition);
-    //planner.printPath(path);
     while(1);
     cout << "Program done." << endl;
     return 0;

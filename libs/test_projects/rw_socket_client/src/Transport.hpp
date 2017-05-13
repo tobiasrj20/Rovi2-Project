@@ -33,16 +33,26 @@ class Transport
         std::mutex mtx1;
         QPath workingPath;
         Q ballPosition;
+        Q lastBallPosition;
+        Q lastRobotConfig;
+        QPath ballPath;
         int period;
+        int ballPeriod;
         void sendToSimulator(Q q, Q ballPosition);
+        void sendBallPosToSimulator(Q ballPosition);
+        void sendToRobConfigToSimulator(Q q);
         int limit = -1;
         uint currentIndex = 0;
 
     public:
         Transport(QPath workingPath, int period);
+        Transport(QPath workingPath, int period, QPath ballPath, int ballPeriod);
         void updatePath(QPath workingPath);
         void updateBallPos(Q ballPosition);
         void setLimit(int limit);
         uint getCurrentIndex();
         void transportThread();
+        void ballMoveThread();
+        void setBallPeriod(int period);
+        Q getBallPosition();
 };
