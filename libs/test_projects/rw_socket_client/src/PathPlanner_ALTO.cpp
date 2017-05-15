@@ -1,5 +1,5 @@
 #include "PathPlanner_ALTO.hpp"
-#define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
+//#define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
 
 PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
 {
@@ -20,7 +20,7 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
 
     // Load obstacle motion
     motionCounter = 0;
-    obstacleMotions = readMotionFile(OBSTACLE_MOTION_FILE_PATH);
+    //obstacleMotions = readMotionFile(OBSTACLE_MOTION_FILE_PATH);
 }
 
 QPath PathPlanner_ALTO::getMainPath(){
@@ -126,7 +126,7 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
 
 QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
 {
-
+    cout << "HER!!!!!!!" << endl;
     QPath newPath;
     // push first collision free part of workingPath into tempPath
     for(uint i = 0; i < limit; i++){
@@ -172,7 +172,7 @@ QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
     for(uint j = i+1; j < workingPath.size(); j++){
         newPath.push_back(workingPath[j]);
     }
-
+    cout << "Workingpath internal size: " << workingPath.size() << endl;
     workingPath = newPath;
     return workingPath;
 }
@@ -225,47 +225,6 @@ QPath PathPlanner_ALTO::onlinePlanner(Q ballPosition)
     return workingPath;
 }
 
-/*
-*   Reads a file with marker movements with (x,y,z,r,p,y) on each line
-*   and converts each line/move to a transformation matrix
-*   Returns a vector of all the transformation matrixes
-*/
-vector<Transform3D<double>> PathPlanner_ALTO::readMotionFile(std::string fileName)
-{
-    std::string line;
-    double x, y, z, roll, pitch, yaw;
-    RPY<double> rpy;
-    Vector3D<double> xyz;
-    std::vector<Transform3D<double> > motions; // Vector of transformations (rpy and translation)
-
-    std::ifstream file(fileName);
-
-    if(file.is_open())
-    {
-        // Read each line of the file
-        while(std::getline(file,line))
-        {
-            std::stringstream lineStream(line); // Create a stream for the line string
-            //std::cout << line << std::endl;
-            // Read x,y,z,r,p,y from the line string
-            lineStream >> x;
-            lineStream >> y;
-            lineStream >> z;
-            lineStream >> roll;
-            lineStream >> pitch;
-            lineStream >> yaw;
-
-            rpy = RPY<double>(roll,pitch,yaw);   // Create RPY matrix
-            xyz = Vector3D<double>(x,y,z);   // Create translation vector
-
-            // Create a transformation matrix from the RPY and translation vector and put it into a vector
-            motions.push_back(Transform3D<double>(xyz, rpy.toRotation3D() ));
-        }
-
-        file.close();
-    }
-    return motions;
-}
 
 
 void PathPlanner_ALTO::writeMainPathToFile(std::string filepath)
@@ -352,13 +311,12 @@ void PathPlanner_ALTO::writePathToFile(QPath &path, std::string filepath)
 
 }
 
-void PathPlanner_ALTO::readPathFromFile(QPath &path, std::string filepath)
+void PathPlanner_ALTO::setMainPath(QPath path)
 {
-    ofstream myfile;
-    myfile.open(filepath);
-    for (QPath::iterator it = path.begin(); it < path.end(); it++) {
-        myfile << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << "," << (*it)[3] << "," << (*it)[4] << "," << (*it)[5] << "\n";
-    }
-    myfile.close();
+    this->mainPath = path;
+}
 
+void PathPlanner_ALTO::setWorkingPath(QPath path)
+{
+    this->workingPath = path;
 }

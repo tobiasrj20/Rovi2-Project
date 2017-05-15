@@ -31,6 +31,7 @@ class Transport
         SocketCommunication mySocket;
         std::mutex mtx;
         std::mutex mtx1;
+        std::mutex ballMtx;
         QPath workingPath;
         Q ballPosition;
         Q lastBallPosition;
@@ -42,7 +43,7 @@ class Transport
         void sendBallPosToSimulator(Q ballPosition);
         void sendToRobConfigToSimulator(Q q);
         int limit = -1;
-        uint currentIndex = 0;
+        int currentIndex = -1;
 
     public:
         Transport(QPath workingPath, int period);
@@ -50,9 +51,12 @@ class Transport
         void updatePath(QPath workingPath);
         void updateBallPos(Q ballPosition);
         void setLimit(int limit);
-        uint getCurrentIndex();
+        int getCurrentIndex();
         void transportThread();
         void ballMoveThread();
         void setBallPeriod(int period);
         Q getBallPosition();
+        void startBallThread();
+        void startRobotThread();
+        Q getCurrentQ();
 };

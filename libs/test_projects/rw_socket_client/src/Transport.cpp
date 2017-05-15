@@ -8,7 +8,7 @@ Transport::Transport(QPath workingPath, int period)
     ballPosition = Q(3,-2,0,0);  // Initialize ballPosition
     lastBallPosition = ballPosition;
     lastRobotConfig = workingPath[0];
-    std::thread *t1 = new thread(&Transport::transportThread, this);
+    //std::thread *t1 = new thread(&Transport::transportThread, this);
 }
 
 Transport::Transport(QPath workingPath, int period, QPath ballPath, int ballPeriod)
@@ -21,32 +21,40 @@ Transport::Transport(QPath workingPath, int period, QPath ballPath, int ballPeri
     ballPosition = ballPath[0];  // Initialize ballPosition
     lastBallPosition = ballPosition;
     lastRobotConfig = workingPath[0];
+    //std::thread *t1 = new thread(&Transport::transportThread, this);
+    //std::thread *t2 = new thread(&Transport::ballMoveThread, this);
+}
+
+void Transport::startRobotThread()
+{
     std::thread *t1 = new thread(&Transport::transportThread, this);
+}
+
+void Transport::startBallThread()
+{
     std::thread *t2 = new thread(&Transport::ballMoveThread, this);
 }
 
 void Transport::transportThread()
 {
-    while(1)
+    // workingPath.size() is not protected and may change while reading!!
+    for(uint i = 0; i<workingPath.size(); i++)
     {
-        // workingPath.size() is not protected and may change while reading!!
-        for(uint i = 0; i<workingPath.size(); i++)
-        {
-            //cout << "Jeg er en traad!" << endl; // Debug
-            mtx.lock();
-                if(i >= limit){
-                    i = limit;
-                }
-                else{
-                    //sendToSimulator(workingPath[i], ballPosition);
-                    sendToRobConfigToSimulator(workingPath[i]);
-                }
-                currentIndex = i;
-            mtx.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(period));
+        //cout << "Jeg er en traad!" << endl; // Debug
+        mtx.lock();
+            if(i >= limit){
+                i = limit;
+            }
+            else{
+                //sendToSimulator(workingPath[i], ballPosition);
+                sendToRobConfigToSimulator(workingPath[i]);
+            }
+            currentIndex = i;
+        mtx.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(period));
 
-        }
     }
+    currentIndex = -1;
 }
 
 
@@ -56,9 +64,9 @@ void Transport::ballMoveThread()
     {
         for(uint i = 0; i<ballPath.size(); i++)
         {
-            mtx.lock();
+            ballMtx.lock();
                 sendBallPosToSimulator(ballPath[i]);
-            mtx.unlock();
+            ballMtx.unlock();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(ballPeriod));
         }
@@ -87,10 +95,17 @@ void Transport::setLimit(int limit)
     mtx.unlock();
 }
 
-uint Transport::getCurrentIndex()
+int Transport::getCurrentIndex()
 {
     //mtx.lock();
         return currentIndex;
+    //mtx.unlock();
+}
+
+Q Transport::getCurrentQ()
+{
+    //mtx.lock();
+        return workingPath[currentIndex];
     //mtx.unlock();
 }
 
@@ -145,9 +160,9 @@ Q Transport::getBallPosition()
 {
     Q ballPosision;
 
-    mtx.lock();
+    ballMtx.lock();
         ballPosition = lastBallPosition;
-    mtx.unlock();
+    ballMtx.unlock();
 
     return ballPosition;
 }
