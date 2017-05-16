@@ -44,6 +44,8 @@ class Transport
         void sendToRobConfigToSimulator(Q q);
         int limit = -1;
         int currentIndex = -1;
+        std::thread *t1;
+        std::thread *t2;
 
     public:
         Transport();
@@ -60,4 +62,5 @@ class Transport
         void startBallThread();
         void startRobotThread();
         Q getCurrentQ();
+        void deleteThread();
 };

@@ -2,7 +2,7 @@
 
 Transport::Transport()
 {
-    
+
 }
 
 Transport::Transport(QPath workingPath, int period)
@@ -32,12 +32,17 @@ Transport::Transport(QPath workingPath, int period, QPath ballPath, int ballPeri
 
 void Transport::startRobotThread()
 {
-    std::thread *t1 = new thread(&Transport::transportThread, this);
+    t1 = new thread(&Transport::transportThread, this);
 }
 
 void Transport::startBallThread()
 {
-    std::thread *t2 = new thread(&Transport::ballMoveThread, this);
+    t2 = new thread(&Transport::ballMoveThread, this);
+}
+
+void Transport::deleteThread()
+{
+    delete t1;
 }
 
 void Transport::transportThread()

@@ -26,6 +26,15 @@ using namespace rw::trajectory;
 using namespace rwlibs::pathplanners;
 using namespace rwlibs::proximitystrategies;
 
+double getJointLength(QPath path){
+    double sum = 0;
+    Q diff;
+    for(unsigned int i = 1; i<path.size(); i++){
+        diff = path[i-1] - path[i];
+        sum += diff.norm2();
+    }
+    return sum;
+}
 
 int main(int argc, char** argv)
 {
@@ -38,7 +47,7 @@ int main(int argc, char** argv)
 
     // OBS obstacle navn er ikke ændret i planner
     //string wcFile, string deviceName, string dynamicObstacleName, QPath mainPath, QPath obstaclePath, int obstaclePeriod, int devicePeriod
-    ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 500, 100);
+    ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 1000, 500);
     obstacleavoidance.startObstacleMovement();
     while(1)
     {

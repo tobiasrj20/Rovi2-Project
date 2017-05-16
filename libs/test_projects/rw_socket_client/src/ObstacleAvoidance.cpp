@@ -58,6 +58,7 @@ void ObstacleAvoidance::runWithSimulation()
 
     }
     //cout << "OMGANG!!!" << endl;
+    //transport->deleteThread();
 }
 
 ObstacleAvoidance::~ObstacleAvoidance()
