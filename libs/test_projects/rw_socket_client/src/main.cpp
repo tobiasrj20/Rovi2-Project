@@ -43,12 +43,12 @@ int main(int argc, char** argv)
 
     PathPlanner_ALTO globalPlanner(wcFile, deviceName);
     QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path.txt");
-    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball_path.txt");
+    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball.txt");
 
     // OBS obstacle navn er ikke ændret i planner
     //string wcFile, string deviceName, string dynamicObstacleName, QPath mainPath, QPath obstaclePath, int obstaclePeriod, int devicePeriod
     ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 1000, 500);
-    
+
     obstacleavoidance.startObstacleMovement();
     while(1)
     {

@@ -49,8 +49,6 @@ class PathPlanner_ALTO
         int preChecker(Q ballPosition, int presentIndex);
         QPath onlinePlanner2(uint limit, int minimumThreshold);
 
-        QPath onlinePlanner(Q ballPosition);
-
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);
         void readPathFromFile(QPath &path, std::string filepath);

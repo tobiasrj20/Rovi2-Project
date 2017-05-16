@@ -40,7 +40,7 @@ void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     Vector3D<double> xyz(x,y,z);   // Create translation vector
     Transform3D<double> t_matrix(xyz, rpy.toRotation3D() ); // Create a transformation matrix from the RPY and XYZ
 
-    MovableFrame* obstacle = (MovableFrame*) wcell->findFrame("Obstacle");
+    obstacle = (MovableFrame*) wcell->findFrame("Obstacle");
     obstacle->moveTo(t_matrix,state);
 }
 
@@ -52,8 +52,8 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
 
     //moveObstacle(0, -0.175, 0.95);
 
-    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
-    PlannerConstraint constraint = PlannerConstraint::make(&detector,device,state);
+    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+    PlannerConstraint constraint = PlannerConstraint::make(detector,device,state);
 
     /** More complex way: allows more detailed definition of parameters and methods */
     QSampler::Ptr sampler = QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr());
@@ -115,69 +115,29 @@ bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, /
 
 QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
 {
-    cout << "online planner 2!!!!" << endl;
     QPath newPath;
     // push first collision free part of workingPath into tempPath
     for(uint i = 0; i < limit; i++){
         newPath.push_back(workingPath[i]);
     }
 
-    //cout << "Ball position: " <<
-    // moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
-
     CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
-    //int i = limit + 1;
-    int i = limit + 1;  // Index of first collision
-    int cnt = 0;
-    bool col;
+    uint i = limit + 1;  // Index of first collision
 
-    /*
-    if(!(i + 2 < workingPath.size()))
-        i++;
-
-    // check for colliding states with a threshold for intermediate clear states
-    do {
-        i++;
-        if(!(col = checkCollisions(device, state, detector, workingPath[i]))){
-            cnt++;
-        }
-        else {
-            cnt = 0;
-        }
-        cout << "col: " << col << endl;
-    }
-    while(col && i < workingPath.size()-1);*/
-
-
-    /*
-    if(i + 2 < workingPath.size())
-        i += 2;
-    else
-        i++;*/
-
-
-    cout << "Before loop i: " << i << endl;
-    cout << "Before loop size: " << workingPath.size() << endl;
     while(checkCollisions(device, state, /*detector,*/ workingPath[i]) && i < workingPath.size())
     {
-        cout << "inside loop i for increment: " << i << endl;
         if(i + 1 >= workingPath.size())
             break;
         else
             i++;
-        cout << "inside loop i: " << i << endl;
-        cout << "inside loop size: " << workingPath.size() << endl;
-        //cout << "i = " << i << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     }
-    cout << "After loop" << endl;
 
-
-    QPath bypass = getPath(workingPath[limit], workingPath[i], 0.9, 10);  // Vi skal have indstillet epislon og max time
+    QPath bypass = getPath(workingPath[limit], workingPath[i], 0.5, 10);  // Vi skal have indstillet epislon og max time
 
     for(uint k = 0; k < bypass.size(); k++){
         newPath.push_back(bypass[k]);
-        cout << bypass[k] << "   ny" << endl;
+        //cout << bypass[k] << "   ny" << endl;
     }
 
 
@@ -185,59 +145,9 @@ QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
     for(uint j = i+1; j < workingPath.size(); j++){
         newPath.push_back(workingPath[j]);
     }
-    cout << "Workingpath internal size: " << workingPath.size() << endl;
     workingPath = newPath;
     return workingPath;
 }
-
-/*
-*   Generates a new path if the ball becomes a obstacle
-*/
-QPath PathPlanner_ALTO::onlinePlanner(Q ballPosition)
-{
-    Q preCollision;
-    Q postCollision;
-    bool collision = false;
-    QPath newPath;
-
-    moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
-    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
-    workingPath = mainPath;
-
-
-    for(unsigned int i = 0; i<workingPath.size(); i++)
-    {
-        bool col = checkCollisions(device, state, /*detector,*/ workingPath[i]);
-
-        if(col)
-        {
-            if(!collision)
-            {
-                collision = true;
-                preCollision = workingPath[i - 1];
-            }
-        }
-        else if(!col && collision)
-        {
-            collision = false;
-            postCollision = workingPath[i];
-
-            QPath bypass = getPath(preCollision, postCollision, 0.1, 10);  // Vi skal have indstillet epislon og max time
-
-            for(uint k = 0; k < bypass.size(); k++)
-            {
-                newPath.push_back(bypass[k]);
-            }
-        }
-        else
-        {
-            newPath.push_back(workingPath[i]);
-        }
-    }
-    workingPath = newPath;
-    return workingPath;
-}
-
 
 
 void PathPlanner_ALTO::writeMainPathToFile(std::string filepath)
@@ -337,21 +247,16 @@ void PathPlanner_ALTO::setWorkingPath(QPath path)
 
 int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
 
-    //moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
-    cout << "Prechecker!!!!" << endl;
-
-    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
-
     for(uint i = presentIndex; i < workingPath.size(); i++) {
         if(checkCollisions(device, state, /*detector,*/ workingPath[i])) {
             return i - 1;
         }
-
+        /*
         if(i > presentIndex){
             if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
                return i - 1;
            }
-       }
+       }*/
     }
     return -1;
 }
@@ -365,7 +270,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
     Q q;
     Q deltaQ = to-from;
 
-    double epsilon = 1.;
+    double epsilon = 0.1;
     int n = deltaQ.norm2()/epsilon;
     int levels = ceil(log2(n));
 
@@ -375,7 +280,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
         for(int j = 1; j <= steps; j++){
 
             q = from + (j - 0.5)*step;
-            cout << q << endl;
+            //cout << q << endl;
             testState = state;
             device->setQ(q,testState);
             if(detector->inCollision(testState,&data)){
