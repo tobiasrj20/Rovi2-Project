@@ -1,4 +1,5 @@
 #include "ObstacleAvoidance.hpp"
+#include "Testbench.hpp"
 
 ObstacleAvoidance::ObstacleAvoidance(const string wcFile, const string deviceName, const string dynamicObstacleName, const QPath mainPath, const QPath obstaclePath, const int obstaclePeriod, const int devicePeriod)
 {
@@ -28,6 +29,7 @@ void ObstacleAvoidance::runWithSimulation()
     QPath correctionPath;
     int currentIndex = 0;
     int limit;
+    Testbench testbench;
 
     transport->startRobotThread();
 
@@ -41,18 +43,17 @@ void ObstacleAvoidance::runWithSimulation()
         ballPosition = transport->getBallPosition();
         planner->moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
 
-        //cout << "current index:  " << currentIndex << endl;
-
+        cout << "current index:  " << currentIndex << endl;
 
         limit = planner->preChecker(ballPosition, currentIndex);
 
-        //cout << "limit:   " << limit << endl;
+        cout << "limit:   " << limit << endl;
 
         if(limit >= 0){
            transport->setLimit(limit);
-
+           testbench.startTimer();
            correctionPath = planner->onlinePlanner2(limit,1);
-
+           testbench.stopTimer();
            transport->updatePath(correctionPath);
         }
 

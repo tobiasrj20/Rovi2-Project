@@ -1,4 +1,5 @@
 #include "PathPlanner_ALTO.hpp"
+#include "Testbench.hpp"
 //#define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
 
 PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
@@ -20,7 +21,10 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
 
     // Load obstacle motion
     motionCounter = 0;
-    //obstacleMotions = readMotionFile(OBSTACLE_MOTION_FILE_PATH);
+
+    moveObstacle(-0.595,0.000,1.717);   // Start ball position in scene
+    // Create detector for collision detection
+    detector = new CollisionDetector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
 }
 
 QPath PathPlanner_ALTO::getMainPath(){
@@ -57,16 +61,16 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
     QToQPlanner::Ptr planner;
     Timer t;
 
-    if (checkCollisions(device, state, detector, from))
+    if (checkCollisions(device, state, /*detector,*/ from))
         return 0;
-    if (checkCollisions(device, state, detector, to))
+    if (checkCollisions(device, state, /*detector,*/ to))
         return 0;
 
     // Single path generation
     QPath path;
 
-    //planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
-    planner = Z3Planner::makeQToQPlanner(constraint,device);
+    planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
+    //planner = Z3Planner::makeQToQPlanner(constraint,device);
     //planner = ARWPlanner::makeQToQPlanner(constraint,device,0,-1,-1);
 
     t.resetAndResume();
@@ -89,14 +93,14 @@ void PathPlanner_ALTO::printPath(QPath path){
     }*/
 }
 
-bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q) {
+bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, /*const CollisionDetector &detector,*/ const Q &q) {
     State testState;
     CollisionDetector::QueryResult data;
     bool colFrom;
 
     testState = state;
     device->setQ(q,testState);
-    colFrom = detector.inCollision(testState,&data);
+    colFrom = detector->inCollision(testState,&data);
     if (colFrom) {
         //cerr << "Configuration in collision: " << q << endl;
         //cerr << "Colliding frames: " << endl;
@@ -155,7 +159,7 @@ QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
 
     cout << "Before loop i: " << i << endl;
     cout << "Before loop size: " << workingPath.size() << endl;
-    while(checkCollisions(device, state, detector, workingPath[i]) && i < workingPath.size())
+    while(checkCollisions(device, state, /*detector,*/ workingPath[i]) && i < workingPath.size())
     {
         cout << "inside loop i for increment: " << i << endl;
         if(i + 1 >= workingPath.size())
@@ -203,7 +207,7 @@ QPath PathPlanner_ALTO::onlinePlanner(Q ballPosition)
 
     for(unsigned int i = 0; i<workingPath.size(); i++)
     {
-        bool col = checkCollisions(device, state, detector, workingPath[i]);
+        bool col = checkCollisions(device, state, /*detector,*/ workingPath[i]);
 
         if(col)
         {
@@ -335,17 +339,19 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
 
     //moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
     cout << "Prechecker!!!!" << endl;
-    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+
+    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+
     for(uint i = presentIndex; i < workingPath.size(); i++) {
-        if(checkCollisions(device, state, detector, workingPath[i])) {
+        if(checkCollisions(device, state, /*detector,*/ workingPath[i])) {
             return i - 1;
         }
-        /*
+
         if(i > presentIndex){
             if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
                return i - 1;
            }
-       }*/
+       }
     }
     return -1;
 }
@@ -354,7 +360,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
 
     State testState;
     CollisionDetector::QueryResult data;
-    CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
+    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
     Q q;
     Q deltaQ = to-from;
@@ -372,7 +378,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
             cout << q << endl;
             testState = state;
             device->setQ(q,testState);
-            if(detector.inCollision(testState,&data)){
+            if(detector->inCollision(testState,&data)){
                 return false;
             }
         }

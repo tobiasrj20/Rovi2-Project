@@ -43,7 +43,7 @@ class PathPlanner_ALTO
 
         QPath getPath(rw::math::Q from, rw::math::Q to, double extend, int maxtime);
         void printPath(QPath path);
-        bool checkCollisions(Device::Ptr device, const State &state, const CollisionDetector &detector, const Q &q);
+        bool checkCollisions(Device::Ptr device, const State &state, /*const CollisionDetector &detector,*/ const Q &q);
         vector<Transform3D<double>> readMotionFile(std::string fileName);
 
         int preChecker(Q ballPosition, int presentIndex);
@@ -74,5 +74,6 @@ class PathPlanner_ALTO
         std::vector<Transform3D<double>> obstacleMotions;
         unsigned int motionCounter;
         bool binaryLocalPlanner(Q to, Q from);
+        CollisionDetector *detector;
 
 };
