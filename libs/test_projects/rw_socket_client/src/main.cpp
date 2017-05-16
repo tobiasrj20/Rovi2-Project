@@ -12,6 +12,7 @@
 #include "PathPlanner_ALTO.hpp"
 #include "Transport.hpp"
 #include <thread>
+#include "ObstacleAvoidance.hpp"
 
 using namespace std;
 using namespace rw::common;
@@ -26,84 +27,23 @@ using namespace rwlibs::pathplanners;
 using namespace rwlibs::proximitystrategies;
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     const string wcFile = "../../../../Workcell3/WC3_Scene.wc.xml";
     const string deviceName = "UR1";
 
-    //Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
-    //Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
-    //Q ballPosition(3,-0.40,0.20,0.90);
+    PathPlanner_ALTO globalPlanner(wcFile, deviceName);
+    QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path.txt");
+    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball.txt");
 
-    Q ballPosition;
-
-    PathPlanner_ALTO planner(wcFile, deviceName);
-
-    //QPath path = planner.getPath(from, to, 0.9, 10);
-    //planner.setMainPath(path);
-    //Mypath.writePathToFile(path, "../src/main_path.txt");
-
-
-    planner.readMainPathFromFile("../src/main_path.txt");
-    QPath ballPath = planner.readBallPathFromFile("../src/ball.txt");
-    QPath mainPath = planner.getMainPath();
-
-
-    //Transport transport(planner.getMainPath(), 500); // Create transport object for handling transmission of paths to the robot/simulator
-    //transport.updateBallPos(ballPosition);
-    Transport transport(mainPath, 100, ballPath, 500); // Create transport object for handling of robot and ball movement in the simulator
-
-    QPath correctionPath;
-
-    int currentIndex = 0;
-
-    transport.startBallThread();
-
+    // OBS obstacle navn er ikke ændret i planner
+    //string wcFile, string deviceName, string dynamicObstacleName, QPath mainPath, QPath obstaclePath, int obstaclePeriod, int devicePeriod
+    ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 500, 100);
+    obstacleavoidance.startObstacleMovement();
     while(1)
     {
-        // Start working on main path again, in both planner and transport.
-        planner.setWorkingPath(mainPath);
-        transport.updatePath(mainPath);
-
-        transport.startRobotThread();
-        //usleep(1000000);    //  Ugly fix to secure that thread is running once, before the while loop below.
-
-        while(transport.getCurrentIndex() == -1);   //  Ugly fix to secure that thread is running once, before the while loop below.
-
-        //while(transport.getCurrentQ() != planner.getMainPath().back())
-        //while((currentIndex = transport.getCurrentIndex()) < correctionPath.size()-1)
-        while((currentIndex = transport.getCurrentIndex()) > -1)
-        {
-        //for (uint i = 0; i < 2; i++)
-
-            // Move the ball
-            ballPosition = transport.getBallPosition();
-            planner.moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
-
-            //int currentIndex = transport.getCurrentIndex();
-            cout << "current index:  " << currentIndex << endl;
-            //cout << "Workingpath size: " << correctionPath.size() << endl;
-
-
-            int limit = planner.preChecker(ballPosition, currentIndex);
-
-            cout << "limit:   " << limit << endl;
-
-            if(limit >= 0){
-               transport.setLimit(limit);
-
-               correctionPath = planner.onlinePlanner2(limit,1);
-
-               transport.updatePath(correctionPath);
-               //transport.updateBallPos(ballPosition);
-
-               //planner.printPath(correctionPath);
-            }
-
-        }
-        cout << "OMGANG!!!" << endl;
-        //usleep(1000000);     //  Ugly fix to secure that thread is running once, before the while loop below.
+        obstacleavoidance.setMainPath(mainPath);
+        obstacleavoidance.runWithSimulation();
     }
 
-
-    return 0;
 }

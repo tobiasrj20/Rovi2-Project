@@ -55,7 +55,7 @@ class PathPlanner_ALTO
         void writePathToFile(QPath &path, std::string filepath);
         void readPathFromFile(QPath &path, std::string filepath);
         void writeMainPathToFile(std::string filepath);
-        void readMainPathFromFile(std::string filepath);
+        QPath readMainPathFromFile(std::string filepath);
         QPath readBallPathFromFile(std::string filepath);
         QPath getMainPath();
         void setMainPath(QPath path);

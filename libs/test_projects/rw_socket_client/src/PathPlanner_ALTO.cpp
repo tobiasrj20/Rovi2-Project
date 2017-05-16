@@ -238,7 +238,7 @@ void PathPlanner_ALTO::writeMainPathToFile(std::string filepath)
 
 }
 
-void PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
+QPath PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
 
     vector<double> state_vec;
     std::string line, token;
@@ -265,7 +265,7 @@ void PathPlanner_ALTO::readMainPathFromFile(std::string filepath) {
 
 
     workingPath = mainPath;
-
+    return workingPath;
     /*
     for (QPath::iterator it = mainPath.begin(); it < mainPath.end(); it++) {
         cout << *it << endl;

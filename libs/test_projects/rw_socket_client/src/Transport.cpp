@@ -1,5 +1,10 @@
 #include "Transport.hpp"
 
+Transport::Transport()
+{
+    
+}
+
 Transport::Transport(QPath workingPath, int period)
 {
     mySocket.createClient(50000);

@@ -46,6 +46,7 @@ class Transport
         int currentIndex = -1;
 
     public:
+        Transport();
         Transport(QPath workingPath, int period);
         Transport(QPath workingPath, int period, QPath ballPath, int ballPeriod);
         void updatePath(QPath workingPath);
