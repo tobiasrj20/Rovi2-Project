@@ -1,5 +1,6 @@
 #include <iostream>
 #include "RRT.hpp"
+#include "EdgeCollisionDetectors.hpp"
 
 // Robwork libs
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
@@ -37,13 +38,18 @@ int main()
     Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
     Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
 
+
     RRT rrt(constraint, sampler, metric);
-
-    //rrt.connectTest();
-
 
     QPath path = rrt.rrtConnectPlanner(from, to, 0.5, 1000);
 
     for(uint i = 0; i<path.size(); i++)
         cout << path[i] << endl;
+
+    /*
+    rrt.connectTest();
+
+    EdgeCollisionDetectors edgeDetect(constraint, 0.1);
+    edgeDetect.inCollisionBinaryTest();
+    */
 }

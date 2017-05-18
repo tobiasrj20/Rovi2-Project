@@ -5,6 +5,7 @@
 using namespace std;
 
 RRT::RRT(const PlannerConstraint& constraint, QSampler::Ptr sampler, QMetric::Ptr metric)
+:_edgeCollisionDetect(constraint, 0.1)
 {
     _constraint = constraint;
     _sampler = sampler;
@@ -19,7 +20,8 @@ bool RRT::inCollision(const Q& q)
 // Local planner: 'a' is known to be collision free, but 'b' is not.
 bool RRT::inCollision(const Q &a, const Q &b)
 {
-    return _constraint.getQConstraint().inCollision(b) || _constraint.getQEdgeConstraint().inCollision(a, b);
+    //return _constraint.getQConstraint().inCollision(b) || _constraint.getQEdgeConstraint().inCollision(a, b); // Robwork edge collision checker
+    return _constraint.getQConstraint().inCollision(b) || _edgeCollisionDetect.inCollisionBinary(a, b);   // Own edge collision checker
 }
 
 /*

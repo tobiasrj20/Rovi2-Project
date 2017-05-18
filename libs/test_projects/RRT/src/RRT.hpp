@@ -8,11 +8,12 @@
 #include <rw/rw.hpp>
 #include <rw/pathplanning/PlannerConstraint.hpp>
 #include <rw/pathplanning/QSampler.hpp>
-//#include <rwlibs/pathplanners/rrt/RRTNode.hpp>
 
-// Own libs
 #include "RRTTree.hpp"
 #include "RRTNode.hpp"
+
+// Own libs
+#include "EdgeCollisionDetectors.hpp"
 
 using namespace rw;
 using namespace rw::math;
@@ -42,6 +43,7 @@ class RRT
         PlannerConstraint _constraint;
         QSampler::Ptr _sampler;
 		QMetric::Ptr _metric;
+        EdgeCollisionDetectors _edgeCollisionDetect;
 
         ExtendResult connect(Tree &tree, const Q &q, double epsilon);
         ExtendResult extend(Tree& tree, const Q& q, Node *nearestNode, const double &epsilon);
