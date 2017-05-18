@@ -47,7 +47,7 @@ class PathPlanner_ALTO
         vector<Transform3D<double>> readMotionFile(std::string fileName);
 
         int preChecker(Q ballPosition, int presentIndex);
-        QPath onlinePlanner2(uint limit, int minimumThreshold);
+        QPath correctionPlanner(uint limit, int minimumThreshold);
 
         void moveObstacle(double x, double y, double z);
         void writePathToFile(QPath &path, std::string filepath);

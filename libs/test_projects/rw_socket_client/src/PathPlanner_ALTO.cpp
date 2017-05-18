@@ -113,13 +113,9 @@ bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, /
     return false;
 }
 
-QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
+QPath PathPlanner_ALTO::correctionPlanner(uint limit, int minimumThreshold)
 {
     QPath newPath;
-    // push first collision free part of workingPath into tempPath
-    for(uint i = 0; i < limit; i++){
-        newPath.push_back(workingPath[i]);
-    }
 
     CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
@@ -134,6 +130,11 @@ QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
     }
 
     QPath bypass = getPath(workingPath[limit], workingPath[i], 0.5, 10);  // Vi skal have indstillet epislon og max time
+
+    // push first collision free part of workingPath into tempPath
+    for(uint h = 0; h < limit; h++){
+        newPath.push_back(workingPath[h]);
+    }
 
     for(uint k = 0; k < bypass.size(); k++){
         newPath.push_back(bypass[k]);

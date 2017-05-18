@@ -56,7 +56,7 @@ void ObstacleAvoidance::runWithSimulation()
            transport->setLimit(limit);
 
            testbench.startTimer();
-           correctionPath = planner->onlinePlanner2(limit,1);
+           correctionPath = planner->correctionPlanner(limit,1);
            testbench.stopTimer();
            transport->updatePath(correctionPath);
         }
