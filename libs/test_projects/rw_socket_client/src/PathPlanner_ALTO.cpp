@@ -140,7 +140,6 @@ QPath PathPlanner_ALTO::onlinePlanner2(uint limit, int minimumThreshold)
         //cout << bypass[k] << "   ny" << endl;
     }
 
-
     // push remaining part of workingPath into tempPath
     for(uint j = i+1; j < workingPath.size(); j++){
         newPath.push_back(workingPath[j]);
@@ -251,12 +250,12 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
         if(checkCollisions(device, state, /*detector,*/ workingPath[i])) {
             return i - 1;
         }
-        /*
+
         if(i > presentIndex){
             if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
                return i - 1;
            }
-       }*/
+       }
     }
     return -1;
 }
@@ -270,7 +269,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
     Q q;
     Q deltaQ = to-from;
 
-    double epsilon = 0.1;
+    double epsilon = 1.0;
     int n = deltaQ.norm2()/epsilon;
     int levels = ceil(log2(n));
 

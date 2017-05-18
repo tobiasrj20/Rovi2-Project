@@ -1,0 +1,3 @@
+Vi har problemer med noget tid så snart epsilon i local planner sættes ned til f.eks. 0.1 så stopper robotten til sidst selvom bolden er statisk.
+
+Kig på correctionPath output, der ser ud til at være dobbelt konfekt.   LØSNING: det er Z3 planner skyld! brug RRT :P
