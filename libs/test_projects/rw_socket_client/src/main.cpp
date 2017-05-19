@@ -41,8 +41,16 @@ int main(int argc, char** argv)
 {
     const string wcFile = "../../../../Workcell3/WC3_Scene.wc.xml";
     const string deviceName = "UR1";
+    Q from(6,-0.702,-2.528,-0.573,5.927,1.72,-1.253);
+    Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
 
     PathPlanner_ALTO globalPlanner(wcFile, deviceName);
+
+    // Generate new interpolated path
+    QPath path = globalPlanner.getInterpolatedPath(from, to, 0.5, 10, 0.1);
+    globalPlanner.writePathToFile(path, "../src/interpolated_mainpath.txt");
+
+    // Read main and ball path
     //QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path4.txt");
     QPath mainPath = globalPlanner.readMainPathFromFile(argv[1]);
 

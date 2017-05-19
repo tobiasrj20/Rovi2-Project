@@ -59,7 +59,8 @@ class PathPlanner_ALTO
         QPath getMainPath();
         void setMainPath(QPath path);
         void setWorkingPath(QPath path);
-
+        QPath getInterpolatedPath(Q from, Q to, double epsilon, int maxtime, double minPieces);
+        
     private:
         WorkCell::Ptr wcell;
         Device::Ptr device;

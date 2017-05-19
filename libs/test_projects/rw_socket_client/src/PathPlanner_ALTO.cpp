@@ -285,3 +285,31 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
     return -1;
 }
 
+QPath PathPlanner_ALTO::getInterpolatedPath(Q from, Q to, double epsilon, int maxtime, double minPieces)
+{
+    QPath path = getPath(from, to, epsilon, maxtime);
+    QPath newPath;
+    //printPath(path);
+
+    for(uint i = 0; i<path.size()-1; i++)
+    {
+        Q deltaQ = path[i+1]-path[i];
+        double length = deltaQ.norm2();
+        int n = ceil( length/minPieces );   // Number of pieces to split the path into
+        Q unitVec = deltaQ/length;
+
+        // Loop number of pieces
+        for(int j = 1; j<=n; j++)
+        {
+            if(j == 1)
+                newPath.push_back(path[i]);
+            else if(j == n)
+                newPath.push_back(path[i+1]);
+            else
+                newPath.push_back(path[i] + unitVec*minPieces);
+        }
+    }
+    //cout << endl;
+    //printPath(newPath);
+    return newPath;
+}
