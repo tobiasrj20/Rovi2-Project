@@ -35,13 +35,22 @@ void Testbench::storePathLength(QPath path, const std::string& type){
         maxtotal += maxbetween;
     }
 
-    cout << "max total: " << maxtotal << endl;
+    double each = maxtotal/(path.size()-1);
+    cout << "Each: " << each *1000 << "ms" << endl;
 
-
-
-
-
+    if(each >= 0.42){
+        cout << "Acceleration: " << ((2*0.42)/3.1415926535)*1000 << "ms" << endl;
+        cout << "Resten: " << ((each -0.42)/3.1415926535)*1000 << "ms" << endl;
+        robotPeriod = (((each-0.42)+(2*0.42))/3.1415926535)*1000;
+        cout << "Robot period: " << robotPeriod << "ms" << endl;
+    }
+    else
+    {
+        robotPeriod = ((2*each)/3.1415926535)*1000;
+        cout << "Robot period (only acceleration): " << robotPeriod << "ms" << endl;
+    }
 }
+
 
 void Testbench::collisionCount(){
     noOfCol++;

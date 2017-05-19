@@ -143,7 +143,7 @@ void Transport::sendToSimulator(Q q, Q ballPosition)
     }
     // cout << "Qstring: " << Qstring << endl; // debug
     // Send robot and obstacle state
-    cout << "Qstring: " << Qstring << endl;
+    //cout << "Qstring: " << Qstring << endl;
     mySocket.sendM(Qstring);
 }
 

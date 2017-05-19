@@ -42,6 +42,7 @@ class Testbench
         double precheck_time;
         double planning_time;
         double simple_time;
+        double robotPeriod;
 
     private:
         high_resolution_clock::time_point startSimpleTime;

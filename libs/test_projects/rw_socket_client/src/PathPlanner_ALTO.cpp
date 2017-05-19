@@ -1,6 +1,8 @@
 #include "PathPlanner_ALTO.hpp"
 #include "Testbench.hpp"
-#define EPSILON_BINARY 1.0
+#define EPSILON_BINARY 0.01
+#define EPSILON_RRT_C 0.5
+#define RRT_MAX_TIME 10
 
 PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName):
    wcell(WorkCellLoader::Factory::load(wcFile)),
@@ -11,7 +13,6 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
    sampler(QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr())),
    metric(MetricFactory::makeEuclidean<Q>()),
    obstacle((MovableFrame*) wcell->findFrame("Obstacle"))
-   //_edgeCollisionDetect(constraint, 1.0)
 {
 /*
     wcell = WorkCellLoader::Factory::load(wcFile);
@@ -24,8 +25,6 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
     if (device == NULL) {
         cerr << "Obstacle not found!" << endl;
     }
-    rw::math::Math::seed();
-
 
     _state = wcell->getDefaultState();   // Get default state
     detector = new CollisionDetector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());  // Create detector for collision detection
@@ -34,6 +33,8 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
     metric = MetricFactory::makeEuclidean<Q>();
 */
     //rrtPlanner = new RRT(constraint, sampler, metric, 0.5);
+
+    rw::math::Math::seed();
 
     // Load obstacle motion
     motionCounter = 0;
@@ -89,7 +90,7 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
 
 
 
-    rrtPlanner = new RRT(constraint, sampler, metric, extend);
+    rrtPlanner = new RRT(constraint, sampler, metric, EPSILON_BINARY);
     QPath path = rrtPlanner->rrtConnectPlanner(from, to, extend, maxtime);
 
     if(path.size() == 0)
@@ -148,7 +149,7 @@ QPath PathPlanner_ALTO::correctionPlanner(uint limit, int minimumThreshold)
             i++;
     }
 
-    QPath bypass = getPath(workingPath[limit], workingPath[i], 0.5, 10);  // Vi skal have indstillet epislon og max time
+    QPath bypass = getPath(workingPath[limit], workingPath[i], EPSILON_RRT_C, RRT_MAX_TIME);  // Vi skal have indstillet epislon og max time
 
     // push first collision free part of workingPath into tempPath
     for(uint h = 0; h < limit; h++){
@@ -280,43 +281,7 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
             if(_edgeCollisionDetect.inCollisionBinary(workingPath[i - 1], workingPath[i]))
                 return i - 1;
         }
-        /*
-        if(i > presentIndex){
-            if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
-               return i - 1;
-           }
-       }*/
     }
     return -1;
 }
 
-/*
-bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
-
-    State testState;
-    CollisionDetector::QueryResult data;
-    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
-
-    Q q;
-    Q deltaQ = to-from;
-
-    double epsilon = 1.0;
-    int n = deltaQ.norm2()/epsilon;
-    int levels = ceil(log2(n));
-
-    for(int i = 1; i <= levels; i++){
-        int steps = pow(2.0,i-1);
-        Q step = deltaQ/steps;
-        for(int j = 1; j <= steps; j++){
-
-            q = from + (j - 0.5)*step;
-            //cout << q << endl;
-            testState = _state;
-            device->setQ(q,testState);
-            if(detector->inCollision(testState,&data)){
-                return false;
-            }
-        }
-    }
-    return true;
-}*/

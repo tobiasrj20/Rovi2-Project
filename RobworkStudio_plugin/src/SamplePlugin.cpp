@@ -30,9 +30,9 @@ SamplePlugin::~SamplePlugin() {
 void SamplePlugin::initialize() {
     getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
-    //_wc = WorkCellLoader::Factory::load("/home/age/Desktop/SDU/8_semester/RoVi2/Final/workspace/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
+    _wc = WorkCellLoader::Factory::load("/home/age/LAGER/Dropbox/SDU/8_semester/RoVi2/workspace/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
 
-    _wc = WorkCellLoader::Factory::load("/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
+    //_wc = WorkCellLoader::Factory::load("/home/tobias/Dropbox/RobTek/Cand_2_semester/Rovi2-Project/Workcell3/WC3_Scene.wc.xml");
     //_wc = WorkCellLoader::Factory::load("../../Workcell3/WC3_Scene.wc.xml");
     _state = _wc->getDefaultState();        // Get workcell state
     getRobWorkStudio()->setWorkCell(_wc);   // Set workcell in RobworkStudio

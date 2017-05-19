@@ -13,6 +13,7 @@
 #include "Transport.hpp"
 #include <thread>
 #include "ObstacleAvoidance.hpp"
+#include "Testbench.hpp"
 
 using namespace std;
 using namespace rw::common;
@@ -42,12 +43,19 @@ int main(int argc, char** argv)
     const string deviceName = "UR1";
 
     PathPlanner_ALTO globalPlanner(wcFile, deviceName);
-    QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path.txt");
-    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball_path.txt");
+    //QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path4.txt");
+    QPath mainPath = globalPlanner.readMainPathFromFile(argv[1]);
+
+    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball_spiral.txt");
+
+    // Determine robot period
+    Testbench periodtest;
+    periodtest.storePathLength(mainPath,"main");
+
 
     // OBS obstacle navn er ikke ændret i planner
     //string wcFile, string deviceName, string dynamicObstacleName, QPath mainPath, QPath obstaclePath, int obstaclePeriod, int devicePeriod
-    ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 1000, 500);
+    ObstacleAvoidance obstacleavoidance(wcFile, deviceName, "Obstacle", mainPath, ballPath, 1000, periodtest.robotPeriod);
 
     obstacleavoidance.startObstacleMovement();
     while(1)

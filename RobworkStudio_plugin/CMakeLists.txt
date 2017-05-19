@@ -14,7 +14,10 @@
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
-set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+
+SET(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} -Ofast -g -Wall -fpermissive -Wno-ignored-attributes -Wno-misleading-indentation -Wno-deprecated-declarations -Wno-unused-local-typedefs")
+
+#set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
 
 # The name of the project.
 PROJECT(PluginUIApp)

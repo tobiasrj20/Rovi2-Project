@@ -44,10 +44,13 @@ void ObstacleAvoidance::runWithSimulation()
         planner->moveObstacle(ballPosition[0], ballPosition[1], ballPosition[2]);
 
         //cout << "current index:  " << currentIndex << endl;
+
+
         testbench.startPreCheckTime();
         limit = planner->preChecker(ballPosition, currentIndex);
+        //limit = -1;
         testbench.pausePreCheckTime();
-        //cout << "Precheck time: " << testbench.precheck_time << endl;
+        cout << "Precheck time: " << testbench.precheck_time << endl;
         testbench.precheck_time = 0;
 
         //cout << "limit:   " << limit << endl;
@@ -55,9 +58,11 @@ void ObstacleAvoidance::runWithSimulation()
         if(limit >= 0){
            transport->setLimit(limit);
 
-           testbench.startTimer();
+           testbench.startPlanningTime();
            correctionPath = planner->correctionPlanner(limit,1);
-           testbench.stopTimer();
+           testbench.pausePlanningTime();
+           cout << "Correction planner time: " << testbench.planning_time << endl;
+           testbench.planning_time = 0;
            transport->updatePath(correctionPath);
         }
     }

@@ -20,8 +20,8 @@ bool RRT::inCollision(const Q& q)
 // Local planner: 'a' is known to be collision free, but 'b' is not.
 bool RRT::inCollision(const Q &a, const Q &b)
 {
-    return _constraint.getQConstraint().inCollision(b) || _constraint.getQEdgeConstraint().inCollision(a, b); // Robwork edge collision checker
-    //return _constraint.getQConstraint().inCollision(b) || _edgeCollisionDetect.inCollisionBinary(a, b);   // Own edge collision checker
+    //return _constraint.getQConstraint().inCollision(b) || _constraint.getQEdgeConstraint().inCollision(a, b); // Robwork edge collision checker
+    return _constraint.getQConstraint().inCollision(b) || _edgeCollisionDetect.inCollisionBinary(a, b);   // Own edge collision checker
 }
 
 /*
