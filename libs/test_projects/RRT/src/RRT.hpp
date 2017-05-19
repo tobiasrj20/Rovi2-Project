@@ -31,7 +31,7 @@ enum ExtendResult { TRAPPED, REACHED, ADVANCED };
 class RRT
 {
     public:
-        RRT(const PlannerConstraint& constraint, QSampler::Ptr sampler, QMetric::Ptr metric);
+        RRT(const PlannerConstraint& constraint, QSampler::Ptr sampler, QMetric::Ptr metric, double epsilonEdgeColDetect);
         QPath rrtConnectPlanner(Q qInit, Q qGoal, double epsilon, double maxTime);
 
         // TEST SECTION!!!

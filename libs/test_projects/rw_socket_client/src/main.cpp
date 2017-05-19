@@ -42,8 +42,8 @@ int main(int argc, char** argv)
     const string deviceName = "UR1";
 
     PathPlanner_ALTO globalPlanner(wcFile, deviceName);
-    QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path3.txt");
-    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball_path.txt");
+    QPath mainPath = globalPlanner.readMainPathFromFile("../src/main_path.txt");
+    QPath ballPath = globalPlanner.readBallPathFromFile("../src/ball.txt");
 
     // OBS obstacle navn er ikke ændret i planner
     //string wcFile, string deviceName, string dynamicObstacleName, QPath mainPath, QPath obstaclePath, int obstaclePeriod, int devicePeriod

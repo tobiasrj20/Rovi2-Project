@@ -2,8 +2,17 @@
 #include "Testbench.hpp"
 //#define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
 
-PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
+PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName):
+   wcell(WorkCellLoader::Factory::load(wcFile)),
+   device(wcell->findDevice(deviceName)),
+   _state(wcell->getDefaultState()),
+   detector(rw::common::ownedPtr(new CollisionDetector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy()))),
+   constraint(PlannerConstraint::make(detector,device,_state)),
+   sampler(QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr())),
+   metric(MetricFactory::makeEuclidean<Q>()),
+   obstacle((MovableFrame*) wcell->findFrame("Obstacle"))
 {
+/*
     wcell = WorkCellLoader::Factory::load(wcFile);
     device = wcell->findDevice(deviceName);
     obstacle = (MovableFrame*) wcell->findFrame("Obstacle");
@@ -16,15 +25,18 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
     }
     rw::math::Math::seed();
 
-    // Get default state
-    state = wcell->getDefaultState();
+
+    _state = wcell->getDefaultState();   // Get default state
+    detector = new CollisionDetector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());  // Create detector for collision detection
+    constraint = PlannerConstraint::make(detector,device,_state);
+    sampler = QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr());
+    metric = MetricFactory::makeEuclidean<Q>();
+*/
+    //rrtPlanner = new RRT(constraint, sampler, metric, 0.5);
 
     // Load obstacle motion
     motionCounter = 0;
-
     moveObstacle(-0.595,0.000,1.717);   // Start ball position in scene
-    // Create detector for collision detection
-    detector = new CollisionDetector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
 }
 
 QPath PathPlanner_ALTO::getMainPath(){
@@ -41,32 +53,25 @@ void PathPlanner_ALTO::moveObstacle(double x, double y, double z) {
     Transform3D<double> t_matrix(xyz, rpy.toRotation3D() ); // Create a transformation matrix from the RPY and XYZ
 
     obstacle = (MovableFrame*) wcell->findFrame("Obstacle");
-    obstacle->moveTo(t_matrix,state);
+    obstacle->moveTo(t_matrix,_state);
 }
 
 QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend, int maxtime){
 
-    // Get default state of the scene and move to the ''from'' position
 
-    device->setQ(from,state);
+    //device->setQ(from,_state);
 
-    //moveObstacle(0, -0.175, 0.95);
-
-    //CollisionDetector detector(wcell, ProximityStrategyFactory::makeDefaultCollisionStrategy());
-    PlannerConstraint constraint = PlannerConstraint::make(detector,device,state);
-
-    /** More complex way: allows more detailed definition of parameters and methods */
-    QSampler::Ptr sampler = QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr());
-    QMetric::Ptr metric = MetricFactory::makeEuclidean<Q>();
+    PlannerConstraint constraint = PlannerConstraint::make(detector,device,_state);
+    /*
     QToQPlanner::Ptr planner;
     Timer t;
 
-    if (checkCollisions(device, state, /*detector,*/ from))
+    if (checkCollisions(device, _state, from))
         return 0;
-    if (checkCollisions(device, state, /*detector,*/ to))
+    if (checkCollisions(device, _state, to))
         return 0;
 
-    // Single path generation
+
     QPath path;
 
     planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
@@ -80,6 +85,14 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
     if (t.getTime() >= maxtime) {
        cout << "Notice: max time of " << maxtime << " seconds reached." << endl;
     }
+
+    return path;*/
+
+    rrtPlanner = new RRT(constraint, sampler, metric, extend);
+    QPath path = rrtPlanner->rrtConnectPlanner(from, to, extend, maxtime);
+
+    if(path.size() == 0)
+        cout << "RRT planner: could not find a path!" << endl;
 
     return path;
 }
@@ -121,7 +134,7 @@ QPath PathPlanner_ALTO::correctionPlanner(uint limit, int minimumThreshold)
 
     uint i = limit + 1;  // Index of first collision
 
-    while(checkCollisions(device, state, /*detector,*/ workingPath[i]) && i < workingPath.size())
+    while(checkCollisions(device, _state, /*detector,*/ workingPath[i]) && i < workingPath.size())
     {
         if(i + 1 >= workingPath.size())
             break;
@@ -248,15 +261,16 @@ void PathPlanner_ALTO::setWorkingPath(QPath path)
 int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
 
     for(uint i = presentIndex; i < workingPath.size(); i++) {
-        if(checkCollisions(device, state, /*detector,*/ workingPath[i])) {
+        if(checkCollisions(device, _state, /*detector,*/ workingPath[i])) {
             return i - 1;
         }
 
+        /*
         if(i > presentIndex){
             if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
                return i - 1;
            }
-       }
+       }*/
     }
     return -1;
 }
@@ -281,7 +295,7 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
 
             q = from + (j - 0.5)*step;
             //cout << q << endl;
-            testState = state;
+            testState = _state;
             device->setQ(q,testState);
             if(detector->inCollision(testState,&data)){
                 return false;

@@ -19,9 +19,10 @@
 
 #include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
 
-
-
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
+
+#include "../../RRT/src/RRT.hpp"
+#include "../../RRT/src/EdgeCollisionDetectors.hpp"
 
 using namespace std;
 using namespace rw::common;
@@ -62,16 +63,21 @@ class PathPlanner_ALTO
     private:
         WorkCell::Ptr wcell;
         Device::Ptr device;
+        State _state;
+        CollisionDetector::Ptr detector;
+        PlannerConstraint constraint;
+        QSampler::Ptr sampler;
+        QMetric::Ptr metric;
+        QToQPlanner::Ptr planner;
+        RRT *rrtPlanner;
+        MovableFrame* obstacle;
 
         QPath mainPath;
         QPath workingPath;
-        QToQPlanner::Ptr planner;
-        MovableFrame* obstacle;
-        State state;
         Timer t;
         std::vector<Transform3D<double>> obstacleMotions;
         unsigned int motionCounter;
         bool binaryLocalPlanner(Q to, Q from);
-        CollisionDetector *detector;
+
 
 };

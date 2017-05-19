@@ -39,7 +39,7 @@ int main()
     Q to(6,1.701,-0.081,0.664,3.358,-0.125,-3.314);
 
 
-    RRT rrt(constraint, sampler, metric);
+    RRT rrt(constraint, sampler, metric, 0.5);
 
     QPath path = rrt.rrtConnectPlanner(from, to, 0.5, 1000);
 
