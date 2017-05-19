@@ -56,7 +56,7 @@ class RRT
 struct timer
 {
     typedef std::chrono::steady_clock clock ;
-    typedef std::chrono::milliseconds milliseconds ;
+    typedef std::chrono::seconds seconds ;
 
     public:
         void reset()
@@ -66,7 +66,7 @@ struct timer
 
         unsigned long long millisec_elapsed() const
         {
-            return std::chrono::duration_cast<milliseconds>( clock::now() - start ).count();
+            return std::chrono::duration_cast<seconds>( clock::now() - start ).count();
         }
 
     private:

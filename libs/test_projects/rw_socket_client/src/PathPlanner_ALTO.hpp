@@ -77,7 +77,7 @@ class PathPlanner_ALTO
         Timer t;
         std::vector<Transform3D<double>> obstacleMotions;
         unsigned int motionCounter;
-        bool binaryLocalPlanner(Q to, Q from);
+        //bool binaryLocalPlanner(Q to, Q from);
 
 
 };

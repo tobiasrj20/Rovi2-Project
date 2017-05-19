@@ -1,6 +1,6 @@
 #include "PathPlanner_ALTO.hpp"
 #include "Testbench.hpp"
-//#define OBSTACLE_MOTION_FILE_PATH   "motions.txt"
+#define EPSILON_BINARY 1.0
 
 PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName):
    wcell(WorkCellLoader::Factory::load(wcFile)),
@@ -11,6 +11,7 @@ PathPlanner_ALTO::PathPlanner_ALTO(const string wcFile, const string deviceName)
    sampler(QSampler::makeConstrained(QSampler::makeUniform(device),constraint.getQConstraintPtr())),
    metric(MetricFactory::makeEuclidean<Q>()),
    obstacle((MovableFrame*) wcell->findFrame("Obstacle"))
+   //_edgeCollisionDetect(constraint, 1.0)
 {
 /*
     wcell = WorkCellLoader::Factory::load(wcFile);
@@ -62,7 +63,7 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
     //device->setQ(from,_state);
 
     PlannerConstraint constraint = PlannerConstraint::make(detector,device,_state);
-    /*
+
     QToQPlanner::Ptr planner;
     Timer t;
 
@@ -71,7 +72,7 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
     if (checkCollisions(device, _state, to))
         return 0;
 
-
+    /*
     QPath path;
 
     planner = RRTPlanner::makeQToQPlanner(constraint, sampler, metric, extend, RRTPlanner::RRTConnect);
@@ -84,15 +85,23 @@ QPath PathPlanner_ALTO::getPath(rw::math::Q from, rw::math::Q to, double extend,
 
     if (t.getTime() >= maxtime) {
        cout << "Notice: max time of " << maxtime << " seconds reached." << endl;
-    }
+   }*/
 
-    return path;*/
+
 
     rrtPlanner = new RRT(constraint, sampler, metric, extend);
     QPath path = rrtPlanner->rrtConnectPlanner(from, to, extend, maxtime);
 
     if(path.size() == 0)
+    {
+        path.push_back(from);
+        path.push_back(to);
         cout << "RRT planner: could not find a path!" << endl;
+    }
+    //cout << "Path1" << endl;
+    //printPath(path);
+    //cout << "\n\nPath2" << endl;
+    //printPath(path2);
 
     return path;
 }
@@ -101,9 +110,6 @@ void PathPlanner_ALTO::printPath(QPath path){
     cout << "size: " << path.size() << endl;
     for(uint i = 0; i<path.size(); i++)
         cout << path[i] << endl;
-    /*for (QPath::iterator it = path.begin(); it < path.end(); it++) {
-        cout << *it << endl;
-    }*/
 }
 
 bool PathPlanner_ALTO::checkCollisions(Device::Ptr device, const State &state, /*const CollisionDetector &detector,*/ const Q &q) {
@@ -147,6 +153,7 @@ QPath PathPlanner_ALTO::correctionPlanner(uint limit, int minimumThreshold)
     // push first collision free part of workingPath into tempPath
     for(uint h = 0; h < limit; h++){
         newPath.push_back(workingPath[h]);
+        //cout << workingPath[h] << "   gammel" << endl;
     }
 
     for(uint k = 0; k < bypass.size(); k++){
@@ -157,6 +164,7 @@ QPath PathPlanner_ALTO::correctionPlanner(uint limit, int minimumThreshold)
     // push remaining part of workingPath into tempPath
     for(uint j = i+1; j < workingPath.size(); j++){
         newPath.push_back(workingPath[j]);
+        //cout << workingPath[j] << "   gammel" << endl;
     }
     workingPath = newPath;
     return workingPath;
@@ -259,12 +267,19 @@ void PathPlanner_ALTO::setWorkingPath(QPath path)
 
 
 int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
+    EdgeCollisionDetectors _edgeCollisionDetect(constraint, EPSILON_BINARY);
 
     for(uint i = presentIndex; i < workingPath.size(); i++) {
         if(checkCollisions(device, _state, /*detector,*/ workingPath[i])) {
             return i - 1;
         }
 
+        // Binary egde collision checker
+        if(i > presentIndex)
+        {
+            if(_edgeCollisionDetect.inCollisionBinary(workingPath[i - 1], workingPath[i]))
+                return i - 1;
+        }
         /*
         if(i > presentIndex){
             if(!binaryLocalPlanner(workingPath[i - 1],workingPath[i])){
@@ -275,6 +290,7 @@ int PathPlanner_ALTO::preChecker(Q ballPosition, int presentIndex){
     return -1;
 }
 
+/*
 bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
 
     State testState;
@@ -303,4 +319,4 @@ bool PathPlanner_ALTO::binaryLocalPlanner(Q to, Q from){
         }
     }
     return true;
-}
+}*/
